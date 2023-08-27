@@ -16,6 +16,7 @@
 
 package org.gradle.kotlin.dsl.accessors.runtime
 
+import com.meowool.cradle.ConfigurableDependency
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
@@ -26,6 +27,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderConvertible
 import org.gradle.internal.Factory
 import org.gradle.internal.deprecation.DeprecationLogger
+import org.gradle.kotlin.dsl.*
 
 import org.gradle.kotlin.dsl.support.mapOfNonNullValuesOf
 import org.gradle.kotlin.dsl.support.uncheckedCast
@@ -50,6 +52,38 @@ fun conventionOf(target: Any): org.gradle.api.plugins.Convention = when (target)
     is Project -> DeprecationLogger.whileDisabled(Factory { target.convention })!!
     is org.gradle.api.internal.HasConvention -> DeprecationLogger.whileDisabled(Factory { target.convention })!!
     else -> throw IllegalStateException("Object `$target` doesn't support conventions!")
+}
+
+// @cradle extension
+fun addAllDependencyNotationsTo(
+    dependencies: DependencyHandler,
+    configuration: String,
+    dependencyNotations: Array<out Any>
+): List<Dependency?> = dependencyNotations.map {
+    when (it) {
+        is ConfigurableDependency -> when (it.notation) {
+            is String -> addDependencyTo(dependencies, configuration, it.notation) {
+                it.configuration.execute(this)
+            }
+            is org.gradle.api.artifacts.ModuleDependency -> dependencies.add(configuration, it.notation) {
+                it.configuration.execute(this)
+            }
+            is Provider<*> -> {
+                addConfiguredDependencyTo(dependencies, configuration, it.notation) {
+                    it.configuration.execute(this)
+                }
+                null
+            }
+            is ProviderConvertible<*> -> {
+                addConfiguredDependencyTo(dependencies, configuration, it.notation) {
+                    it.configuration.execute(this)
+                }
+                null
+            }
+            else -> throw IllegalArgumentException("Unsupported dependency notation: $it")
+        }
+        else -> dependencies.add(configuration, it)
+    }
 }
 
 
