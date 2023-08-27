@@ -29,6 +29,7 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.artifacts.dependencies.AbstractModuleDependency;
 import org.gradle.api.internal.artifacts.dependencies.DefaultDependencyConstraint;
 import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency;
+import org.gradle.api.internal.artifacts.dependencies.DefaultMutableVersionConstraint;
 import org.gradle.api.internal.artifacts.dsl.dependencies.DependencyFactoryInternal;
 import org.gradle.api.internal.artifacts.dsl.dependencies.ModuleFactoryHelper;
 import org.gradle.api.internal.artifacts.dsl.dependencies.ProjectFinder;
@@ -39,6 +40,7 @@ import org.gradle.internal.reflect.Instantiator;
 import org.gradle.internal.service.scopes.Scopes;
 import org.gradle.internal.service.scopes.ServiceScope;
 import org.gradle.internal.typeconversion.NotationParser;
+import org.gradle.plugin.use.PluginDependency;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -77,7 +79,15 @@ public class DefaultDependencyFactory implements DependencyFactoryInternal {
     @Override
     public Dependency createDependency(Object dependencyNotation) {
         Dependency dependency;
-        if (dependencyNotation instanceof Dependency && !(dependencyNotation instanceof MinimalExternalModuleDependency)) {
+        if (dependencyNotation instanceof PluginDependency) {
+            PluginDependency plugin = (PluginDependency) dependencyNotation;
+            // pluginId:pluginId.gradle.plugin:version
+            dependency = createDependency(new DefaultExternalModuleDependency(
+                DefaultModuleIdentifier.newId(plugin.getPluginId(), plugin.getPluginId() + ".gradle.plugin"),
+                new DefaultMutableVersionConstraint(plugin.getVersion()),
+                null
+            ));
+        } else if (dependencyNotation instanceof Dependency && !(dependencyNotation instanceof MinimalExternalModuleDependency)) {
             dependency = (Dependency) dependencyNotation;
         } else {
             dependency = dependencyNotationParser.getNotationParser().parseNotation(dependencyNotation);
@@ -113,9 +123,7 @@ public class DefaultDependencyFactory implements DependencyFactoryInternal {
     @SuppressWarnings("rawtypes")
     public org.gradle.api.artifacts.ClientModule createModule(Object dependencyNotation, Closure configureClosure) {
         org.gradle.api.artifacts.ClientModule clientModule = clientModuleNotationParser.parseNotation(dependencyNotation);
-        if (configureClosure != null) {
-            configureModule(clientModule, configureClosure);
-        }
+        configureModule(clientModule, configureClosure);
         return clientModule;
     }
 
