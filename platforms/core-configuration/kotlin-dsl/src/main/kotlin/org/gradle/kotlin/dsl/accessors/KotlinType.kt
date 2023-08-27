@@ -16,9 +16,12 @@
 
 package org.gradle.kotlin.dsl.accessors
 
+import kotlinx.metadata.Flags
 import kotlinx.metadata.KmType
+import kotlinx.metadata.KmVariance
 import org.gradle.kotlin.dsl.support.bytecode.newClassTypeOf
 import org.gradle.kotlin.dsl.support.bytecode.newTypeParameterTypeOf
+import org.gradle.kotlin.dsl.support.bytecode.genericTypeOf
 
 
 internal
@@ -31,4 +34,32 @@ object KotlinType {
     val any: KmType = newClassTypeOf("kotlin/Any")
 
     val typeParameter: KmType = newTypeParameterTypeOf(0)
+
+    private val array: KmType = newClassTypeOf("kotlin/Array")
+
+    private val list: KmType = newClassTypeOf("kotlin/collections/List")
+
+    inline fun <reified T> array(
+        argumentFlags: Flags = 0,
+        argumentVariance: KmVariance = KmVariance.INVARIANT
+    ) = genericTypeOf(
+        type = array,
+        argument = classOf<T>(),
+        variance = argumentVariance
+    ).apply { flags = argumentFlags }
+
+    inline fun <reified T> list(
+        argumentFlags: Flags = 0,
+        argumentVariance: KmVariance = KmVariance.INVARIANT
+    ) = genericTypeOf(
+        type = list,
+        argument = classOf<T>(),
+        variance = argumentVariance
+    ).apply { flags = argumentFlags }
+
+    fun vararg(type: KmType, typeFlags: Flags = 0) = genericTypeOf(
+        type = array,
+        argument = type,
+        variance = KmVariance.OUT
+    ).apply { flags = typeFlags }
 }

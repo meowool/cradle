@@ -103,6 +103,26 @@ fun ClassVisitor.publicStaticMethod(
 
 
 internal
+fun ClassVisitor.publicStaticVarargMethod(
+    name: String,
+    desc: String,
+    signature: String? = null,
+    exceptions: Array<String>? = null,
+    deprecated: Boolean = false,
+    methodBody: MethodVisitor.() -> Unit,
+    annotations: MethodVisitor.() -> Unit
+) {
+    method(
+        Opcodes.ACC_PUBLIC
+            .plus(Opcodes.ACC_STATIC)
+            .plus(Opcodes.ACC_VARARGS)
+            .let { if (deprecated) it.plus(Opcodes.ACC_DEPRECATED) else it },
+        name, desc, signature, exceptions, annotations, methodBody
+    )
+}
+
+
+internal
 fun ClassVisitor.publicMethod(
     name: String,
     desc: String,
