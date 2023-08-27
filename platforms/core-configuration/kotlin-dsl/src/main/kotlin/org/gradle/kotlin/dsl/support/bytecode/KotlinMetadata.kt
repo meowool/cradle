@@ -39,6 +39,7 @@ import kotlinx.metadata.jvm.moduleName
 import kotlinx.metadata.jvm.signature
 import kotlinx.metadata.jvm.syntheticMethodForAnnotations
 import org.gradle.kotlin.dsl.accessors.ExtensionSpec
+import org.gradle.kotlin.dsl.accessors.KotlinType
 import org.gradle.kotlin.dsl.accessors.accessorDescriptorFor
 import org.gradle.kotlin.dsl.accessors.nonInlineGetterFlags
 import org.gradle.kotlin.dsl.support.uppercaseFirstChar
@@ -111,6 +112,19 @@ fun ClassVisitor.publicStaticMethod(
 
 
 internal
+fun ClassVisitor.publicStaticVarargMethod(
+    jvmMethodSignature: JvmMethodSignature,
+    signature: String? = null,
+    exceptions: Array<String>? = null,
+    deprecated: Boolean = false,
+    annotations: MethodVisitor.() -> Unit = {},
+    methodBody: MethodVisitor.() -> Unit
+) = jvmMethodSignature.run {
+    publicStaticVarargMethod(name, desc, signature, exceptions, deprecated, annotations, methodBody)
+}
+
+
+internal
 fun ClassVisitor.publicStaticSyntheticMethod(
     signature: JvmMethodSignature,
     methodBody: MethodVisitor.() -> Unit
@@ -169,6 +183,15 @@ fun newOptionalValueParameterOf(
 ): KmValueParameter =
     newValueParameterOf(name, nullable(type), flagsOf(Flag.ValueParameter.DECLARES_DEFAULT_VALUE))
 
+
+internal
+fun newVarargValueParameterOf(
+    name: String,
+    type: KmType,
+    flags: Flags = 0
+): KmValueParameter= newValueParameterOf(name, KotlinType.vararg(type), flags).also {
+    it.varargElementType = type
+}
 
 internal
 fun newTypeParameterOf(
@@ -270,6 +293,15 @@ fun genericTypeOf(type: KmType, arguments: Iterable<KmType>): KmType {
     return type
 }
 
+internal
+fun genericTypeOf(
+    type: KmType,
+    argument: KmType,
+    variance: KmVariance,
+): KmType {
+    type.arguments += KmTypeProjection(variance, argument)
+    return type
+}
 
 internal
 fun actionTypeOf(type: KmType): KmType =
@@ -295,10 +327,10 @@ fun jvmGetterSignatureFor(pluginsExtension: ExtensionSpec): JvmMethodSignature =
 
 internal
 fun jvmGetterSignatureFor(propertyName: String, desc: String): JvmMethodSignature =
-    // Accessors honor the kotlin property jvm interop convention.
-    // The only difference with JavaBean 1.01 is to prefer `get` over `is` for boolean properties.
-    // The following code also complies with Section 8.8 of the spec, "Capitalization of inferred names.".
-    // Sun: "However to support the occasional use of all upper-case names,
+// Accessors honor the kotlin property jvm interop convention.
+// The only difference with JavaBean 1.01 is to prefer `get` over `is` for boolean properties.
+// The following code also complies with Section 8.8 of the spec, "Capitalization of inferred names.".
+// Sun: "However to support the occasional use of all upper-case names,
     //       we check if the first two characters of the name are both upper case and if so leave it alone."
     JvmMethodSignature("get${propertyName.uppercaseFirstChar()}", desc)
 
