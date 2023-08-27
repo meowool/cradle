@@ -16,6 +16,7 @@
 
 package org.gradle.kotlin.dsl
 
+import com.meowool.cradle.ConfigurableDependencyScope
 import org.gradle.api.Action
 import org.gradle.api.Incubating
 import org.gradle.api.NamedDomainObjectProvider
@@ -38,7 +39,7 @@ import org.gradle.kotlin.dsl.support.delegates.DependencyHandlerDelegate
 open class DependencyHandlerScope
 private constructor(
     val dependencies: DependencyHandler
-) : DependencyHandlerDelegate() {
+) : DependencyHandlerDelegate(), ConfigurableDependencyScope {
 
     companion object {
         fun of(dependencies: DependencyHandler): DependencyHandlerScope =
