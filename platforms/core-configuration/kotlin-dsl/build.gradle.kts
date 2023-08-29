@@ -123,6 +123,7 @@ dependencies {
 
 packageCycles {
     excludePatterns.add("org/gradle/kotlin/dsl/**")
+    excludePatterns.add("com/meowool/cradle/**")
 }
 
 testFilesCleanup.reportOnly = true

@@ -37,6 +37,7 @@ class ImplicitImportsTest : AbstractKotlinIntegrationTest() {
             val c = File("some")
             val d = BigDecimal.ONE
             val e = BigInteger.ONE
+            val f = ConfigurableDependency("some", {})
 
             open class Foo {
                 @Inject
