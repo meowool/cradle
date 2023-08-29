@@ -18,17 +18,21 @@ package org.gradle.kotlin.dsl
 
 import org.gradle.api.Incubating
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ExternalModuleDependency
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.artifacts.ResolutionStrategy
 import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.api.provider.Provider
+import org.gradle.api.provider.ProviderConvertible
 
 import org.gradle.kotlin.dsl.accessors.runtime.externalModuleDependencyFor
 
 import org.gradle.kotlin.dsl.support.excludeMapFor
 import org.gradle.kotlin.dsl.support.mapOfNonNullValuesOf
 import org.gradle.kotlin.dsl.support.uncheckedCast
+import org.gradle.plugin.use.PluginDependency
 
 
 /**
@@ -320,3 +324,114 @@ inline fun <T : ModuleDependency> DependencyHandler.add(
  */
 fun <T : ModuleDependency> T.exclude(group: String? = null, module: String? = null): T =
     uncheckedCast(exclude(excludeMapFor(group, module)))
+
+
+/**
+ * Adds an exclude rule to exclude transitive dependencies of this dependency.
+ *
+ * Excluding a particular transitive dependency does not guarantee that it does not show up
+ * in the dependencies of a given configuration.
+ * For example, some other dependency, which does not have any exclude rules,
+ * might pull in exactly the same transitive dependency.
+ * To guarantee that the transitive dependency is excluded from the entire configuration
+ * please use per-configuration exclude rules: [Configuration.getExcludeRules].
+ * In fact, in majority of cases the actual intention of configuring per-dependency exclusions
+ * is really excluding a dependency from the entire configuration (or classpath).
+ *
+ * If your intention is to exclude a particular transitive dependency
+ * because you don't like the version it pulls in to the configuration
+ * then consider using the forced versions feature: [ResolutionStrategy.force].
+ *
+ * @param plugin the plugin's id as exclude rule.
+ * @return this
+ *
+ * @see [ModuleDependency.exclude]
+ *
+ * @author chachako
+ */
+fun <T : ModuleDependency> T.exclude(plugin: PluginDependency): T =
+    exclude(group = plugin.pluginId, module = plugin.pluginId + ".gradle.plugin")
+
+
+/**
+ * Adds an exclude rule to exclude transitive dependencies of this dependency.
+ *
+ * Excluding a particular transitive dependency does not guarantee that it does not show up
+ * in the dependencies of a given configuration.
+ * For example, some other dependency, which does not have any exclude rules,
+ * might pull in exactly the same transitive dependency.
+ * To guarantee that the transitive dependency is excluded from the entire configuration
+ * please use per-configuration exclude rules: [Configuration.getExcludeRules].
+ * In fact, in majority of cases the actual intention of configuring per-dependency exclusions
+ * is really excluding a dependency from the entire configuration (or classpath).
+ *
+ * If your intention is to exclude a particular transitive dependency
+ * because you don't like the version it pulls in to the configuration
+ * then consider using the forced versions feature: [ResolutionStrategy.force].
+ *
+ * @param dependency the dependency's group and name to be excluded.
+ * @return this
+ *
+ * @see [ModuleDependency.exclude]
+ *
+ * @author chachako
+ */
+fun <T : ModuleDependency> T.exclude(dependency: Dependency): T =
+    exclude(dependency.group, dependency.name)
+
+
+/**
+ * Adds an exclude rule to exclude transitive dependencies of this dependency.
+ *
+ * Excluding a particular transitive dependency does not guarantee that it does not show up
+ * in the dependencies of a given configuration.
+ * For example, some other dependency, which does not have any exclude rules,
+ * might pull in exactly the same transitive dependency.
+ * To guarantee that the transitive dependency is excluded from the entire configuration
+ * please use per-configuration exclude rules: [Configuration.getExcludeRules].
+ * In fact, in majority of cases the actual intention of configuring per-dependency exclusions
+ * is really excluding a dependency from the entire configuration (or classpath).
+ *
+ * If your intention is to exclude a particular transitive dependency
+ * because you don't like the version it pulls in to the configuration
+ * then consider using the forced versions feature: [ResolutionStrategy.force].
+ *
+ * @param dependency the provider of plugin's id or dependency's group and name as exclude rule.
+ * @return this
+ *
+ * @see [ModuleDependency.exclude]
+ *
+ * @author chachako
+ */
+fun <T : ModuleDependency> T.exclude(dependency: Provider<*>): T = when (val dep = dependency.get()) {
+    is PluginDependency -> exclude(dep)
+    is Dependency -> exclude(dep)
+    else -> throw IllegalArgumentException("Unsupported dependency type: $dep")
+}
+
+
+/**
+ * Adds an exclude rule to exclude transitive dependencies of this dependency.
+ *
+ * Excluding a particular transitive dependency does not guarantee that it does not show up
+ * in the dependencies of a given configuration.
+ * For example, some other dependency, which does not have any exclude rules,
+ * might pull in exactly the same transitive dependency.
+ * To guarantee that the transitive dependency is excluded from the entire configuration
+ * please use per-configuration exclude rules: [Configuration.getExcludeRules].
+ * In fact, in majority of cases the actual intention of configuring per-dependency exclusions
+ * is really excluding a dependency from the entire configuration (or classpath).
+ *
+ * If your intention is to exclude a particular transitive dependency
+ * because you don't like the version it pulls in to the configuration
+ * then consider using the forced versions feature: [ResolutionStrategy.force].
+ *
+ * @param dependency the provider of plugin's id or dependency's group and name as exclude rule.
+ * @return this
+ *
+ * @see [ModuleDependency.exclude]
+ *
+ * @author chachako
+ */
+fun <T : ModuleDependency> T.exclude(dependency: ProviderConvertible<*>): T =
+    exclude(dependency.asProvider())
