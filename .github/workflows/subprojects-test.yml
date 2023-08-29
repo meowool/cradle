@@ -1,17 +1,25 @@
-name: Contributor CI Build
+name: Test Sub-projects
 
 on:
   push:
     branches:
-      - master
+      - main
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.txt'
+      - '**/*.yml'
   pull_request:
     branches:
-      - master
+      - main
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.txt'
+      - '**/*.yml'
 
 concurrency:
-  # On master/release, we don't want any jobs cancelled so the sha is used to name the group
+  # On main/release, we don't want any jobs cancelled so the sha is used to name the group
   # On PR branches, we cancel the job if new commits are pushed
-  group: ${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release' ) && format('contributor-pr-base-{0}', github.sha) || format('contributor-pr-{0}', github.ref) }}
+  group: ${{ (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/release' ) && format('contributor-pr-base-{0}', github.sha) || format('contributor-pr-{0}', github.ref) }}
   cancel-in-progress: true
 
 
@@ -51,7 +59,7 @@ jobs:
         id: gradle
         uses: gradle/gradle-build-action@v2
         with:
-          cache-read-only: ${{ github.ref != 'refs/heads/master' }}
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
           arguments: |
               compileAll
               --no-configuration-cache
@@ -85,7 +93,7 @@ jobs:
         id: gradle
         uses: gradle/gradle-build-action@v2
         with:
-          cache-read-only: ${{ github.ref != 'refs/heads/master' }}
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
           arguments: |
               sanityCheck
               --no-configuration-cache
@@ -93,7 +101,7 @@ jobs:
               ${{ needs.build.outputs.sys-prop-args }}
 
   unit-test:
-    name: "${{ matrix.bucket.name }} (Unit Test)"
+    name: "${{ matrix.bucket.name }} (Quick Test)"
     runs-on: ubuntu-20.04
     needs: build
     strategy:
@@ -116,7 +124,7 @@ jobs:
         id: gradle
         uses: gradle/gradle-build-action@v2
         with:
-          cache-read-only: ${{ github.ref != 'refs/heads/master' }}
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
           arguments: |
               ${{ matrix.bucket.tasks }}
               --no-configuration-cache
