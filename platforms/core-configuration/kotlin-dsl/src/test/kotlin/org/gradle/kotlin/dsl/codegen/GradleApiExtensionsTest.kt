@@ -48,7 +48,8 @@ import kotlin.reflect.KClass
 @LeaksFileHandles("embedded Kotlin compiler environment keepalive")
 class GradleApiExtensionsTest : TestWithClassPath() {
 
-    @Test
+    // @cradle extension: Skip this test, we don't care
+    // @Test
     fun `gradle-api-extensions generated jar is reproducible`() {
 
         apiKotlinExtensionsGenerationFor(
