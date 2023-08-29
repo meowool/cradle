@@ -21,6 +21,9 @@ object PublicKotlinDslApi {
     val includes = listOf(
         "org/gradle/kotlin/dsl/*",
         "org/gradle/kotlin/dsl/precompile/*",
+
+        // @cradle extension
+        "com/meowool/cradle/*",
     )
 
     val excludes = listOf(
