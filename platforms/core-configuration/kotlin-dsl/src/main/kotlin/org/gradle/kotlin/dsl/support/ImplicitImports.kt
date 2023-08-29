@@ -47,6 +47,10 @@ class ImplicitImports internal constructor(
             "java.math.BigDecimal",
             "java.math.BigInteger",
             "java.io.File",
-            "javax.inject.Inject"
+            "javax.inject.Inject",
+
+            // @cradle extension
+            "com.meowool.cradle.*",
+            "com.meowool.cradle.util.*",
         )
 }
