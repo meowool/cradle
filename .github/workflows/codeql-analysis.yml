@@ -1,10 +1,20 @@
-name: "Code scanning - action"
+name: "Running CodeQL analysis"
 
 on:
   push:
-    branches: [ main, master, release ]
+    branches: [ main, release ]
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.txt'
+      - '**/*.yml'
   schedule:
     - cron: '0 5 * * *'
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.txt'
+      - '**/*.yml'
 
 permissions:
   contents: read
@@ -65,8 +75,8 @@ jobs:
         # Prefix the list here with "+" to use these queries and those in the config file.
         # queries: ./path/to/local/query, your-org/your-repo/queries@main
 
-    - name: Compile with Gradle with Build Scan
-      if: ${{ matrix.language == 'java' && github.repository_owner == 'gradle' }}
+    - name: Compile with Gradle
+      if: ${{ matrix.language == 'java' }}
       run: ./gradlew --no-configuration-cache --init-script .github/workflows/codeql-analysis.init.gradle -DcacheNode=us -S testClasses -Dhttp.keepAlive=false
       env:
         # Set the GRADLE_ENTERPRISE_ACCESS_KEY so that Gradle Build Scans are generated
@@ -74,10 +84,6 @@ jobs:
         # Potential stop-gap solution for ReadTimeout issues with the Gradle Build Cache
         # https://gradle.slack.com/archives/CHDLT99C6/p1636477584059200
         GRADLE_OPTS: -Dhttp.keepAlive=false
-
-    - name: Compile with Gradle without Build Scan
-      if: ${{ matrix.language == 'java' && github.repository_owner != 'gradle' }}
-      run: ./gradlew --no-configuration-cache --init-script .github/workflows/codeql-analysis.init.gradle -S testClasses
 
     - name: Cleanup Gradle Daemons
       run: ./gradlew --stop
