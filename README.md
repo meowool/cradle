@@ -155,7 +155,7 @@ This command will update the `distributionUrl` property in the `gradle/wrapper/g
 
 ## Following upstream updates?
 
-Absolutely! As a fork, our goal is to stay up-to-date with the latest changes from the upstream Gradle project. While we strive to align our updates with the upstream repository, please note that Cradle is an independent distribution and may not always be immediately synchronized with new upstream releases. In the worst scenario, it may take a few working days for us to catch up with a new upstream release 😢. However, this is rare as Cradle synchronizes frequently thanks to our bot! It attempts to merge changes within hours of a new Gradle version release, ensuring timely releases based on the latest upstream changes!
+Sure! Our goal is to stay up-to-date with the latest changes from the Gradle project. While we strive to align our updates with the upstream repository, please note that Cradle is an independent distribution and may not always sync immediately with new upstream releases. In the worst case, it may take a few working days to catch up 😢. However, this is rare as Cradle syncs frequently thanks to our bot! It merges changes within hours of a new Gradle version release, ensuring timely releases based on the latest upstream changes!
 
 #### What's the relationship between the Cradle and Gradle versions?
 
