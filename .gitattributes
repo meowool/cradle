@@ -43,3 +43,12 @@
 *.pyc           binary
 *.gpg           binary
 *.bin           binary
+
+# All these files should be based on the Cradle, and in case
+# of conflicts during merging, the Cradle files should be
+# chosen without hesitation.
+.idea/**/* merge=ours
+.github/**/* merge=theirs
+.gitignore merge=ours
+.editorconfig merge=ours
+README.md merge=ours

@@ -25,6 +25,9 @@ jobs:
         run: |
           git config --global user.name "Meowool Robot"
           git config --global user.email "meowool@proton.me"
+          # We can automatically resolve some conflicts because there are
+          # certain choices we can make without hesitation.
+          git config --global merge.ours.driver true
 
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@v4
@@ -35,7 +38,6 @@ jobs:
           # Sign all commits automatically.
           git_commit_gpgsign: true
 
-      - run: npm install ansi-styles
       - name: Sync upstream changes
         id: sync
         uses: actions/github-script@v6
@@ -60,7 +62,10 @@ jobs:
             if (hasNewCommits) {
               info(yellow, '\n🆕 New commits found upstream to sync.')
               // Merge upstream master branch into target branch
-              await exec.exec('git', ['merge', 'gradle/master', '--no-edit', '-m', 'chore: merge `gradle/master` into `main`'])
+              await exec.exec('git', [
+                'merge', 'gradle/master', '--no-edit', '-m',
+                'chore: merge upstream branch `gradle/master` into `main`'
+              ])
               // Push the changes to the target branch
               await exec.exec('git', ['push', '--verbose'])
             } else {
