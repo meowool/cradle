@@ -1,8 +1,0 @@
-# Configuration for https://github.com/wei/pull
-version: '1'
-rules:
-  - base: main  # The target branch
-    upstream: gradle:master  # The upstream branch
-    mergeMethod: merge # One of [none, merge, squash, rebase, hardreset], Default: none
-    mergeUnstable: true # Merge the pull request even when the mergeable_state is not clean
-    conflictReviewers: [chachako] # Assign a reviewer when there is a merge conflict
