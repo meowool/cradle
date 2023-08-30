@@ -1,4 +1,11 @@
-<img src="cradle-thumbnail.png" alt="cradle" width="100%"/>
+<img src=".github/cradle-thumbnail.png" alt="cradle" width="100%"/>
+
+<div align="center">
+  <img height="32" alt="download-badge" src=".github/cradle-download-badge.svg">
+  <img height="32" alt="sync-badge" src=".github/cradle-sync-badge.svg">
+</div>
+
+<br/>
 
 **A modified version of Gradle with added useful features.** As someone who frequently works with Gradle during the development process, I have encountered many minor frustrations along the way. That's why there's a fork here 🤷‍♂️
 
