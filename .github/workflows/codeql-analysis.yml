@@ -4,6 +4,7 @@ on:
   push:
     branches: [ main, release ]
     paths-ignore:
+      - '.github/**'
       - '**/*.md'
       - '**/*.txt'
       - '**/*.yml'
@@ -11,10 +12,6 @@ on:
     - cron: '0 5 * * *'
   pull_request:
     branches: [main]
-    paths-ignore:
-      - '**/*.md'
-      - '**/*.txt'
-      - '**/*.yml'
 
 permissions:
   contents: read
