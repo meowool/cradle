@@ -4,17 +4,15 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - '**/*.md'
-      - '**/*.txt'
-      - '**/*.yml'
+    paths:
+      - 'platforms/**'
+      - 'subprojects/**'
   pull_request:
     branches:
       - main
     paths-ignore:
-      - '**/*.md'
-      - '**/*.txt'
-      - '**/*.yml'
+      - 'platforms/**'
+      - 'subprojects/**'
 
 concurrency:
   # On main/release, we don't want any jobs cancelled so the sha is used to name the group
