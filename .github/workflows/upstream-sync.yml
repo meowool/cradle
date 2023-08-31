@@ -45,9 +45,8 @@ jobs:
           script: |
             const fs = require('fs')
             const green = 32
-            const yellow = 33
-            const ansiColor = (color, message) => `\u001B[${color}m${message}\u001B[39m`
-            const info = (color, message) => core.info(ansiColor(color, message))
+            const magentaBright = 95
+            const info = (color, message) => core.info(`\u001B[${color}m${message}\u001B[39m`)
             const upstreamUrl = 'https://github.com/gradle/gradle'
 
             // Fetch upstream master branch
@@ -57,29 +56,37 @@ jobs:
             // Read the upstream commits that are ahead of the current branch
             const gradleCommits = []
             await exec.exec('git', ['log', 'HEAD..gradle/master', '--oneline'], {
+              silent: true,
               ignoreReturnCode: true,
-              listeners: { stdout: data => gradleCommits.push(data.toString()) }
-            })
-            core.debug(`🧪 [gradleCommits]: ${gradleCommits}`)
+              listeners: {
+                stdout: data => data.toString().split('\n').forEach(line => {
+                  if (line === '') return
+                  const match = /^(\w+)\s(.*)$/g.exec(line)
+                  if (!match) core.setFailed(`Failed to parse commit: '${line}'`)
 
-            const newCommitCount = gradleCommits.length
-            const commitPattern = /^(\w+)\s(.*)$/g
+                  const hash = match[1]
+                  const subject = match[2].replace(/(?<=^|\s)#(\d+)(?=\s|$)/gm, `${upstreamUrl}/pull/$1`)
+                  gradleCommits.push(`${hash}: ${subject}`)
+                })
+              }
+            })
 
             // Check if there are new commits on the upstream branch
-            if (newCommitCount > 0) {
-              info(yellow, '🆕 New commits found upstream to sync.')
-              info(yellow, '----------------------------------------------------')
-              for (const line of gradleCommits) core.info(line.replace(commitPattern, `$1 ${ansiColor(yellow, '$2')}`))
+            const newCommitCount = gradleCommits.length
+            if (newCommitCount == 0) {
+              info(green, '✅ Our branch is not behind the upstream!')
+            } else {
+              info(magentaBright, `🔍 Found new commits upstream (${newCommitCount})`)
+              info(magentaBright, '----------------------------------------------------')
 
               // Merge upstream master branch into target branch
               await exec.exec('git', [
                 'merge', 'gradle/master', '--no-edit', '-m',
                 'chore: merge upstream branch `gradle/master` into `main`\n\n'
-                  + `This commit synchronizes the latest \`${newCommitCount}\` changes from the [upstream](${upstreamUrl}). The changes include:\n\n`
-                  + gradleCommits.map(line => line.replace(commitPattern, `[\`$1\`](${upstreamUrl}/commit/$1): $2`)).join('\n')
+                  + `This commit synchronizes the latest ${newCommitCount} changes from the ${upstreamUrl}. The changes include:\n\n`
+                  + gradleCommits.join('\n')
               ])
+
               // Push the changes to the target branch
               await exec.exec('git', ['push', '--verbose'])
-            } else {
-              info(green, '\n✅ Our branch is not behind the upstream!')
             }
