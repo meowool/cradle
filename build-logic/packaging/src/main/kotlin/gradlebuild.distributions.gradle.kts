@@ -218,6 +218,24 @@ fun configureDistribution(name: String, distributionSpec: CopySpec, buildDistLif
         }
     }
 
+    tasks.register<Delete>("${name}DistributionClean") {
+        val distName = moduleIdentity.version.map { "gradle-${it.baseVersion.version}-$name" }
+        val dataName = moduleIdentity.version.map { it.version }
+        gradle.gradleUserHomeDir.apply {
+            delete(
+                resolve("caches/$dataName"),
+                resolve("daemon/$dataName"),
+                resolve("notifications/$dataName"),
+            )
+            walkTopDown().onEnter {
+                val isDistribution = it.name == distName.get()
+                if (isDistribution) delete(it)
+                !isDistribution
+            }.forEach { _ -> }
+        }
+        description = "Clean cache related to last distributed Gradle."
+    }
+
     if (!normalized) {
         buildDistLifecycleTask.configure {
             dependsOn(distributionZip)
