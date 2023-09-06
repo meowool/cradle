@@ -41,6 +41,7 @@ class ImplicitImports internal constructor(
             "org.gradle.kotlin.dsl.*",
             // TODO: let this be contributed by :plugins
             "org.gradle.kotlin.dsl.plugins.dsl.*",
+            "org.gradle.kotlin.dsl.support.*",
             // TODO: infer list of types below at build time by inspecting the Gradle API
             "java.util.concurrent.Callable",
             "java.util.concurrent.TimeUnit",
