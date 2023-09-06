@@ -39,6 +39,7 @@ import org.gradle.kotlin.dsl.support.bytecode.genericTypeOf
 import org.gradle.kotlin.dsl.support.bytecode.internalName
 import org.gradle.kotlin.dsl.support.bytecode.jvmGetterSignatureFor
 import org.gradle.kotlin.dsl.support.bytecode.kotlinDeprecation
+import org.gradle.kotlin.dsl.support.bytecode.listTypeOf
 import org.gradle.kotlin.dsl.support.bytecode.newClassTypeOf
 import org.gradle.kotlin.dsl.support.bytecode.newFunctionOf
 import org.gradle.kotlin.dsl.support.bytecode.newOptionalValueParameterOf
@@ -182,7 +183,7 @@ fun fragmentsForConfiguration(accessor: Accessor.ForConfiguration): Fragments = 
                 kmPackage.functions += newFunctionOf(
                     flags = functionFlags,
                     receiverType = GradleType.dependencyHandler,
-                    returnType = KotlinType.list<Dependency>(flagsOf(Flag.Type.IS_NULLABLE)),
+                    returnType = listTypeOf(nullable(GradleType.dependency)),
                     name = "${propertyName}Of",
                     valueParameters = listOf(newVarargValueParameterOf("dependencyNotations", KotlinType.any)),
                     signature = signature
