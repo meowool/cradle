@@ -189,7 +189,7 @@ fun newVarargValueParameterOf(
     name: String,
     type: KmType,
     flags: Flags = 0
-): KmValueParameter= newValueParameterOf(name, KotlinType.vararg(type), flags).also {
+): KmValueParameter = newValueParameterOf(name, varargTypeOf(type), flags).also {
     it.varargElementType = type
 }
 
@@ -316,6 +316,14 @@ fun providerOfStar(): KmType =
 internal
 fun providerConvertibleOfStar(): KmType =
     newClassTypeOf("org/gradle/api/provider/ProviderConvertible", KmTypeProjection.STAR)
+
+internal
+fun listTypeOf(type: KmType): KmType =
+    newClassTypeOf("kotlin/collections/List", KmTypeProjection(KmVariance.INVARIANT, type))
+
+internal
+fun varargTypeOf(type: KmType): KmType =
+    newClassTypeOf("kotlin/Array", KmTypeProjection(KmVariance.OUT, type))
 
 
 internal
