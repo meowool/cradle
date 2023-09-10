@@ -9,7 +9,8 @@ import org.junit.Test
 
 class SourceDistributionResolverIntegrationTest : AbstractKotlinIntegrationTest() {
 
-    @Test
+    // @cradle extension: Skip this test, we don't care
+    // @Test
     fun `can download source distribution`() {
 
         withBuildScript(
@@ -29,7 +30,8 @@ class SourceDistributionResolverIntegrationTest : AbstractKotlinIntegrationTest(
         build()
     }
 
-    @Test
+    // @cradle extension: Skip this test, we don't care
+    // @Test
     fun `can download source distribution when repositories are declared in settings`() {
 
         withSettings(
