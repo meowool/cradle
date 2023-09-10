@@ -22,12 +22,7 @@ jobs:
           fetch-depth: 0
 
       - name: Configure git
-        run: |
-          git config --global user.name "Meowool Robot"
-          git config --global user.email "meowool@proton.me"
-          # We can automatically resolve some conflicts because there are
-          # certain choices we can make without hesitation.
-          git config --global merge.ours.driver true
+        run: bash .github/workflows/configure-git.sh
 
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@v4
