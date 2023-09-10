@@ -1,0 +1,49 @@
+name: 'Upload Nightly Distributions'
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  GRADLE_OPTS: -Dorg.gradle.workers.max=3 -Dorg.gradle.configuration-cache=false -Dorg.gradle.logging.stacktrace=all -Dorg.gradle.jvmargs="-Xmx8g -XX:MaxMetaspaceSize=2g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
+
+jobs:
+  nightly:
+    runs-on: macos-latest
+    name: Upload nightly distributions
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 11
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Bump version
+        run: bash .github/workflows/bump-version-text.sh 1
+
+      - name: Build distributions
+        uses: nick-fields/retry@v2
+        with:
+          max_attempts: 2
+          timeout_minutes: 150
+          command: ./gradlew clean :distributions-full:buildDists :distributions-integ-tests:forkingIntegTest --exclude-task docs -Ddistribution-full-name=true -PmaxParallelForks=3
+
+      - name: Upload as pre-release
+        run: bash .github/workflows/upload-nightly-distributions.sh
+        env:
+          GH_TOKEN: ${{ secrets.BOT_TOKEN }}
+
+      - name: Clean build caches
+        run: ./gradlew clean
