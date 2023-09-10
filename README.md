@@ -1,8 +1,24 @@
 <img src=".github/cradle-thumbnail.png" alt="cradle" width="100%"/>
 
 <div align="center">
-  <img height="32" alt="download-badge" src=".github/cradle-download-badge.svg">
-  <img height="32" alt="sync-badge" src=".github/cradle-sync-badge.svg">
+  <a href="https://github.com/meowool/cradle/releases/latest">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://images-generation.vercel.app/api/cradle/badge?type=download&colorMode=dark">
+      <img alt="download-badge" src="https://images-generation.vercel.app/api/cradle/badge?type=download&colorMode=light">
+    </picture>
+  </a>&nbsp;
+  <a href="https://github.com/gradle/gradle/commits/master">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://images-generation.vercel.app/api/cradle/badge?type=sync&colorMode=dark">
+      <img alt="sync-badge" src="https://images-generation.vercel.app/api/cradle/badge?type=sync&colorMode=light">
+    </picture>
+  </a>&nbsp;
+  <a href="https://github.com/meowool/cradle/actions/workflows/subprojects-test.yml">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://images-generation.vercel.app/api/cradle/badge?type=tests&colorMode=dark">
+      <img alt="tests-badge" src="https://images-generation.vercel.app/api/cradle/badge?type=tests&colorMode=light">
+    </picture>
+  </a>&nbsp;
 </div>
 
 <br/>
