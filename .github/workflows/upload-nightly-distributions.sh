@@ -34,7 +34,7 @@ note_file=$dist_dir/NOTES.md
 {
     echo "## Nightly build for \`$BASE_VERSION\`"
     echo ""
-    echo "#### Please refer to the [commit history](https://github.com/meowool/cradle/commit/$tag) for a full list of changes."
+    echo "#### Please refer to the [commit history](https://github.com/meowool/cradle/commits/$tag) for a full list of changes."
     echo ""
     echo "> [!WARNING]"
     echo "> This is an automatically generated nightly build of **Cradle**, which does not come with any guarantees of quality or stability. Please note that it may not be suitable for production use."
