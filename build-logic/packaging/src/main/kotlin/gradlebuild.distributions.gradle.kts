@@ -198,8 +198,10 @@ fun configureDistribution(name: String, distributionSpec: CopySpec, buildDistLif
     val distributionZip = tasks.register<Zip>("${name}DistributionZip") {
         archiveBaseName = "gradle"
         archiveClassifier = name
-        archiveVersion = moduleIdentity.version.map { it.baseVersion.version }
-
+        archiveVersion = moduleIdentity.version.map {
+            if (System.getProperty("distribution-full-name") == "true") it.version
+            else it.baseVersion.version
+        }
         destinationDirectory = project.layout.buildDirectory.dir(disDir)
 
         into(zipRootFolder) {
