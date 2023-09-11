@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-# Get all distribution zips
+github_url=https://github.com/meowool/cradle
 dist_dir=subprojects/distributions-full/build/distributions
 
 # Parse build version
@@ -30,11 +30,12 @@ echo "🔄 Uploading nightly distributions for '$full_version'"
 find $dist_dir -type f -name "*-docs.zip" -delete
 
 # Write the release notes to a file
+release_url=$github_url/releases/download/$tag
 note_file=$dist_dir/NOTES.md
 {
-    echo "## Nightly build for \`$BASE_VERSION\`"
+    echo "## Nightly build for \`v$BASE_VERSION\`"
     echo ""
-    echo "#### Please refer to the [commit history](https://github.com/meowool/cradle/commits/$tag) for a full list of changes."
+    echo "#### Please refer to the [commit history]($github_url/commits/$tag) for a full list of changes."
     echo ""
     echo "> [!WARNING]"
     echo "> This is an automatically generated nightly build of **Cradle**, which does not come with any guarantees of quality or stability. Please note that it may not be suitable for production use."
@@ -43,7 +44,7 @@ note_file=$dist_dir/NOTES.md
     echo ""
     echo "To quickly switch your build to **Cradle** \`$full_version\`, run the following command in your project's root directory:"
     echo "\`\`\`bash"
-    echo "./gradlew wrapper --gradle-distribution-url=https://github.com/meowool/cradle/releases/download/$tag/gradle-$full_version-bin.zip"
+    echo "./gradlew wrapper --gradle-distribution-url=$release_url/gradle-$full_version-bin.zip"
     echo "\`\`\`"
     echo ""
     echo " If you are unable to use the command above, you can manually update the \`distributionUrl\` property in the \`gradle/wrapper/gradle-wrapper.properties\` file. Simply replace it with the download link for this version."
@@ -55,19 +56,23 @@ note_file=$dist_dir/NOTES.md
     echo ""
     echo "To verify the integrity of the downloaded zip file, you can compare its SHA-256 checksum with the one listed below. For more information on how to do this, please refer to the [Gradle documentation](https://docs.gradle.org/current/userguide/gradle_wrapper.html#sec:verification)."
     echo ""
-    echo "Alternatively, if you prefer, you can download the corresponding \`*.sha256\` file and manually copy the checksum from there."
-    echo ""
     echo "<table>"
+    echo "  <tr>"
+    echo "    <th>Download</th>"
+    echo "    <th>SHA-256 Checksum</th>"
+    echo "  <tr>"
     for zip in $dist_dir/*.zip; do
         zip_name=$(basename $zip)
         sha=$(shasum -a 256 "$zip" | awk '{print $1}')
         echo "  <tr>"
-        echo "    <td>$zip_name</td>"
+        echo "    <td><a href=\"$release_url/$zip_name\">$zip_name<a></td>"
         echo "    <td><code>$sha</code></td>"
         echo "  </tr>"
         echo $sha > $dist_dir/$zip_name.sha256
     done
     echo "</table>"
+    echo ""
+    echo "Alternatively, if you prefer, you can download the corresponding \`*.sha256\` file and manually copy the checksum from there."
 } > $note_file
 
 echo "::group::Release notes"
