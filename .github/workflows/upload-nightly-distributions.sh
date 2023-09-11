@@ -24,6 +24,11 @@ dist_dir=subprojects/distributions-full/build/distributions
 full_version=$(ls $dist_dir/*.zip | head -n 1 | xargs basename | sed 's/gradle-\(.*\)-[^.]*.zip/\1/')
 tag="v$full_version"
 
+# Rename the prefix of the distribution files
+for file in $dist_dir/gradle-*; do
+    mv $file $dist_dir/cradle-$(basename $file | sed 's/^gradle-//')
+done
+
 echo "🔄 Uploading nightly distributions for '$full_version'"
 
 # We don't need docs distribution
@@ -44,7 +49,7 @@ note_file=$dist_dir/NOTES.md
     echo ""
     echo "To quickly switch your build to **Cradle** \`$full_version\`, run the following command in your project's root directory:"
     echo "\`\`\`bash"
-    echo "./gradlew wrapper --gradle-distribution-url=$release_url/gradle-$full_version-bin.zip"
+    echo "./gradlew wrapper --gradle-distribution-url=$release_url/cradle-$full_version-bin.zip"
     echo "\`\`\`"
     echo ""
     echo " If you are unable to use the command above, you can manually update the \`distributionUrl\` property in the \`gradle/wrapper/gradle-wrapper.properties\` file. Simply replace it with the download link for this version."
@@ -85,4 +90,5 @@ title="$full_version (Nightly)"
 files_to_upload=$(ls $dist_dir/*.zip $dist_dir/*.sha256 | tr '\n' ' ')
 
 echo "🚀 Creating release '$title' on branch '$branch' with files '$files_to_upload'"
+echo "========================================"
 echo $(gh release create $tag --title "$title" --notes-file $note_file --prerelease --target $branch $files_to_upload)
