@@ -18,7 +18,7 @@
 
 cradle_version=$1
 
-if ! [[ $(cat version.txt | tr -d '[:space:]') =~ ^([0-9]+\.[0-9]+)(\.([0-9]+))?$ ]]; then
+if ! [[ $(< version.txt tr -d '[:space:]') =~ ^([0-9]+\.[0-9]+)(\.([0-9]+))?$ ]]; then
   echo "::error::'version.txt' format is invalid."
   exit 1
 fi
@@ -34,7 +34,7 @@ echo "Current version: $major_minor$patch"
 #    7.5.1 -> 7.5.1.1
 new_version="$major_minor${patch:-".0"}.$cradle_version"
 
-echo $new_version > version.txt
+echo "$new_version" > version.txt
 echo "BASE_VERSION=$new_version" >> "$GITHUB_ENV"
 
 echo "🆕 New version bumped: $new_version"
