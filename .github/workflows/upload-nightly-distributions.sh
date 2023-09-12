@@ -21,12 +21,13 @@ dist_dir=subprojects/distributions-full/build/distributions
 
 # Parse build version
 # gradle-8.5-20230909160000+0000-src.zip > 8.5-20230909160000+0000
-full_version=$(ls $dist_dir/*.zip | head -n 1 | xargs basename | sed 's/gradle-\(.*\)-[^.]*.zip/\1/')
+full_version=$(find $dist_dir -name '*.zip' | head -n 1 | xargs basename | sed 's/gradle-\(.*\)-[^.]*.zip/\1/')
 tag="v$full_version"
+full_version=$(find $dist_dir -name '*.zip' | head -n 1 | xargs basename | sed 's/gradle-\(.*\)-[^.]*.zip/\1/')
 
 # Rename the prefix of the distribution files
-for file in $dist_dir/gradle-*; do
-  mv $file $dist_dir/cradle-$(basename $file | sed 's/^gradle-//')
+for file in "$dist_dir"/gradle-*; do
+mv "$file" "$dist_dir/cradle-$(basename "$file" | sed 's/^gradle-//')"
 done
 
 echo "🔄 Uploading nightly distributions for '$full_version'"
@@ -66,14 +67,14 @@ note_file=$dist_dir/NOTES.md
   echo "    <th>Download</th>"
   echo "    <th>SHA-256 Checksum</th>"
   echo "  <tr>"
-  for zip in $dist_dir/*.zip; do
-    zip_name=$(basename $zip)
+  for zip in "$dist_dir"/*.zip; do
+    zip_name=$(basename "$zip")
     sha=$(shasum -a 256 "$zip" | awk '{print $1}')
     echo "  <tr>"
     echo "    <td><a href=\"$release_url/$zip_name\">$zip_name<a></td>"
     echo "    <td><code>$sha</code></td>"
     echo "  </tr>"
-    echo $sha > $dist_dir/$zip_name.sha256
+    echo "$sha" > "$dist_dir/$zip_name.sha256"
   done
   echo "</table>"
   echo ""
@@ -87,8 +88,14 @@ echo "::endgroup::"
 # Create a pre-release and upload all these
 branch="main"
 title="$full_version (Nightly)"
-files_to_upload=$(ls $dist_dir/*.zip $dist_dir/*.sha256 | tr '\n' ' ')
+files_to_upload=$(find $dist_dir -type f \( -name "*.zip" -o -name "*.sha256" \) | tr '\n' ' ')
 
 echo "🚀 Creating release '$title' on branch '$branch' with files '$files_to_upload'"
 echo "========================================"
-echo $(gh release create $tag --title "$title" --notes-file $note_file --prerelease --target $branch $files_to_upload)
+
+gh release create "$tag" \
+  --title "$title" \
+  --notes-file "$note_file" \
+  --target "$branch" \
+  --prerelease \
+  "$files_to_upload" | cat
