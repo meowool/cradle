@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 0
 
       - name: Configure git
-        run: .github/workflows/configure-git.sh
+        run: sh=.github/workflows/configure-git.sh && chmod +x "$sh" && "$sh"
 
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@v4
