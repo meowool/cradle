@@ -44,6 +44,3 @@ jobs:
         run: bash .github/workflows/upload-nightly-distributions.sh
         env:
           GH_TOKEN: ${{ secrets.BOT_TOKEN }}
-
-      - name: Clean build caches
-        run: ./gradlew clean
