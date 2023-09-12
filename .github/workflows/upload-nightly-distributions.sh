@@ -93,9 +93,10 @@ files_to_upload=$(find $dist_dir -type f \( -name "*.zip" -o -name "*.sha256" \)
 echo "🚀 Creating release '$title' on branch '$branch' with files '$files_to_upload'"
 echo "========================================"
 
-gh release create "$tag" \
+# shellcheck disable=SC2086
+gh release create $tag \
   --title "$title" \
   --notes-file "$note_file" \
   --target "$branch" \
   --prerelease \
-  "$files_to_upload" | cat
+  $files_to_upload
