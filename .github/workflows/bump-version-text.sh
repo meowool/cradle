@@ -19,8 +19,8 @@
 cradle_version=$1
 
 if ! [[ $(cat version.txt | tr -d '[:space:]') =~ ^([0-9]+\.[0-9]+)(\.([0-9]+))?$ ]]; then
-    echo "::error::'version.txt' format is invalid."
-    exit 1
+  echo "::error::'version.txt' format is invalid."
+  exit 1
 fi
 
 major_minor=${BASH_REMATCH[1]}
