@@ -12,7 +12,7 @@ env:
   GRADLE_OPTS: -Dorg.gradle.workers.max=3 -Dorg.gradle.configuration-cache=false -Dorg.gradle.logging.stacktrace=all -Dorg.gradle.jvmargs="-Xmx8g -XX:MaxMetaspaceSize=2g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
 
 jobs:
-  nightly:
+  upload:
     runs-on: macos-latest
     name: Upload nightly distributions
     steps:
@@ -42,5 +42,19 @@ jobs:
 
       - name: Upload as pre-release
         run: sh=.github/workflows/upload-nightly-distributions.sh && chmod +x "$sh" && "$sh"
+        env:
+          GH_TOKEN: ${{ secrets.BOT_TOKEN }}
+
+  clean:
+    runs-on: ubuntu-latest
+    name: Clean up outdated nightly distributions
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+
+      - name: Clean up pre-releases from 3 months ago
+        run: sh=.github/workflows/clean-nightly-distributions.sh && chmod +x "$sh" && "$sh" 3
         env:
           GH_TOKEN: ${{ secrets.BOT_TOKEN }}
