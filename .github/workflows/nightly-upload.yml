@@ -31,7 +31,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       - name: Bump version
-        run: .github/workflows/bump-version-text.sh 1
+        run: sh=".github/workflows/bump-version-text.sh" && chmod +x "$sh" && "$sh" 1
 
       - name: Build distributions
         uses: nick-fields/retry@v2
@@ -41,6 +41,6 @@ jobs:
           command: ./gradlew clean :distributions-full:buildDists :distributions-integ-tests:forkingIntegTest --exclude-task docs -Ddistribution-full-name=true -PmaxParallelForks=3
 
       - name: Upload as pre-release
-        run: .github/workflows/upload-nightly-distributions.sh
+        run: sh=.github/workflows/bump-version-text.sh && chmod +x "$sh" && "$sh"
         env:
           GH_TOKEN: ${{ secrets.BOT_TOKEN }}
