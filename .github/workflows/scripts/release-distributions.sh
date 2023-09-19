@@ -46,7 +46,11 @@ release_url=$github_url/releases/download/$tag
 note_file=$dist_dir/NOTES.md
 {
   if [[ "$is_nightly" == "true" ]]; then
-    echo "## Nightly build for \`v$current_version\`"
+    if [[ "$current_branch" == "release" ]]; then
+      echo "## Release Nightly build for \`v$current_version\`"
+    else
+      echo "## Nightly build for \`v$current_version\`"
+    fi
   else
     echo "## Release \`v$current_version\`"
   fi
@@ -109,7 +113,6 @@ fi
 echo "🚀 Creating release '$title' on branch '$branch' with files '$files_to_upload'"
 echo "========================================"
 
-gh repo set-default "$GITHUB_REPOSITORY"
 # shellcheck disable=SC2086
 gh release create $tag \
   --title "$title" \
