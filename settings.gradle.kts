@@ -78,11 +78,9 @@ unassigned {
     subproject("resources-s3")
     subproject("resources-sftp")
     subproject("plugins")
-    subproject("scala")
     subproject("ide")
     subproject("ide-native")
     subproject("maven")
-    subproject("antlr")
     subproject("tooling-api")
     subproject("build-events")
     subproject("tooling-api-builders")
@@ -92,12 +90,10 @@ unassigned {
     subproject("diagnostics")
     subproject("publish")
     subproject("ivy")
-    subproject("build-init")
     subproject("build-option")
     subproject("platform-base")
     subproject("platform-native")
     subproject("platform-jvm")
-    subproject("java-compiler-plugin")
     subproject("language-native")
     subproject("tooling-native")
     subproject("plugin-use")
@@ -105,11 +101,7 @@ unassigned {
     subproject("model-core")
     subproject("model-groovy")
     subproject("build-cache-http")
-    subproject("testing-base")
     subproject("testing-native")
-    subproject("testing-jvm")
-    subproject("testing-jvm-infrastructure")
-    subproject("testing-junit-platform")
     subproject("test-kit")
     subproject("installation-beacon")
     subproject("composite-builds")
@@ -154,6 +146,13 @@ platform("ide") {
     subproject("ide-plugins")
 }
 
+// Software Platform
+platform("software") {
+    subproject("antlr")
+    subproject("build-init")
+    subproject("testing-base")
+}
+
 // JVM Platform
 platform("jvm") {
     subproject("code-quality")
@@ -164,11 +163,16 @@ platform("jvm") {
     subproject("language-java")
     subproject("language-jvm")
     subproject("toolchains-jvm")
+    subproject("java-compiler-plugin")
     subproject("java-platform")
     subproject("plugins-groovy")
     subproject("plugins-java")
     subproject("plugins-jvm-test-suite")
     subproject("plugins-jvm-test-suite-base")
+    subproject("scala")
+    subproject("testing-jvm")
+    subproject("testing-jvm-infrastructure")
+    subproject("testing-junit-platform")
     subproject("war")
 }
 
