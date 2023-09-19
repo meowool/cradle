@@ -44,6 +44,12 @@ for tag in $upstream_tags; do
 
     echo "🚀 Pushing $corresponding_branch to origin..."
     git push origin --verbose "$corresponding_branch"
+
+    # We can trigger its release once it is pushed successfully
+    echo "🚀 Triggering release for $corresponding_branch..."
+    gh workflow run distributions-release.yml \
+      --raw-field type="specific" \
+      --raw-field specific="$corresponding_branch"
   fi
 
   # Stop checking out tags if minimum version is reached
