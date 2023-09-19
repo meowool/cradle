@@ -1,0 +1,129 @@
+name: 'Release Cradle Distributions'
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+  create:
+
+env:
+  GH_TOKEN: ${{ secrets.BOT_TOKEN }}
+  SCRIPTS: .github/workflows/scripts
+  GRADLE_OPTS: |
+    -Dorg.gradle.jvmargs="-Xmx8g -XX:MaxMetaspaceSize=2g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" \
+    -Dorg.gradle.configuration-cache=false \
+    -Dorg.gradle.logging.stacktrace=all \
+    -Dorg.gradle.workers.max=3
+
+jobs:
+  # First, we determine which branches to process based on the current event.
+  prepare:
+    runs-on: ubuntu-latest
+    name: Determine event branches
+    steps:
+      - uses: actions/checkout@v3
+      - id: determine-branches
+        run: ${{ env.SCRIPTS }}/determine-event-branches.sh
+    outputs:
+      branches-matrix: ${{ steps.determine-branches.outputs.matrix }}
+      continue: ${{ steps.determine-branches.outputs.continue }}
+
+  # Now, we can release distributions for these branches.
+  release:
+    needs: prepare
+    runs-on: macos-latest
+    name: Release ${{ matrix.branch }} distributions
+    if: ${{ needs.prepare.outputs.continue == 'true' }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.branches-matrix) }}
+    env:
+      current_branch: ${{ matrix.branch }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          # We need to fetch the full history, because we need to compare
+          # between the main branch and other branches.
+          fetch-depth: 0
+
+      - name: Initialize repository
+        run: |
+          # Copy the scripts directory to a temporary directory so that we can
+          # still use it after switching branches.
+          scripts_dir=$(mktemp -d)
+          cp -r ${{ env.SCRIPTS }}/* $scripts_dir
+          echo "SCRIPTS=$scripts_dir" >> $GITHUB_ENV
+
+          # Configure Git
+          "$scripts_dir"/configure-git.sh
+
+          # Set remote upstream to Gradle repository
+          git remote add upstream https://github.com/gradle/gradle
+
+          # Fetch the latest changes from upstream
+          git fetch upstream master
+
+          # Switch to the current branch of the matrix
+          git checkout ${{ env.current_branch }}
+
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v4
+        with:
+          gpg_private_key: ${{ secrets.BOT_GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.BOT_GPG_PASSPHRASE }}
+          git_user_signingkey: true
+          # Sign all commits automatically.
+          git_commit_gpgsign: true
+
+      # Before we can build, we need to make sure that the current branch contains
+      # the latest Cradle code.
+      - name: Apply latest Cradle code
+        if: ${{ env.current_branch != 'main' }}
+        uses: nick-fields/retry@v2
+        with:
+          max_attempts: 3
+          timeout_minutes: 30
+          command: ${{ env.SCRIPTS }}/apply-latest-cradle-code.sh
+
+      # We also need to bump the Gradle base version in the `version.txt` file
+      # so that we can build the correct new distributions.
+      - name: Bump version
+        run: ${{ env.SCRIPTS }}/bump-version.sh
+
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 11
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Build distributions
+        uses: nick-fields/retry@v2
+        with:
+          max_attempts: 3
+          timeout_minutes: 180
+          command: ${{ env.SCRIPTS }}/build-distributions.sh
+
+      - name: Create release
+        run: ${{ env.SCRIPTS }}/release-distributions.sh
+
+      # If everything goes well, we push the version.txt file to the remote
+      - name: Push local changes
+        run: |
+          git add version.txt
+          git commit -m "release: ${{ env.current_version }}"
+          git push origin --verbose ${{ env.current_branch }}
+
+  # In the background, we can clean up outdated nightly distributions.
+  clean:
+    runs-on: ubuntu-latest
+    name: Clean up outdated nightly distributions
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Clean up pre-releases from 3 months ago
+        run: ${{ env.SCRIPTS }}/clean-nightly-distributions.sh 3

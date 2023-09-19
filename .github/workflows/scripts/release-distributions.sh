@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 #
 # Copyright 2023 the original author or authors.
@@ -19,15 +20,20 @@
 github_url=https://github.com/meowool/cradle
 dist_dir=subprojects/distributions-full/build/distributions
 
+is_nightly=$( [[ "$current_branch" == "release" || "$current_branch" == "main" ]] && echo true || echo false )
+
 # Parse build version
-# gradle-8.5-20230909160000+0000-src.zip > 8.5-20230909160000+0000
-full_version=$(find $dist_dir -name '*.zip' | head -n 1 | xargs basename | sed 's/gradle-\(.*\)-[^.]*.zip/\1/')
+# gradle-7.5.1.1-milestone-1-bin.zip > 7.5.1.1-milestone-1
+# gradle-8.5.0.1-20230909160000+0000-src.zip > 8.5.0.1-20230909160000+0000
+raw_full_version=$(find $dist_dir -name '*.zip' | head -n 1 | xargs basename | sed 's/gradle-\(.*\)-[^.]*.zip/\1/')
+# 7.5.1.1-milestone-1 > 7.5.1.1-M1
+# 8.5.0.1-rc-1 > 8.5.0.1-RC1
+full_version=$(echo "$raw_full_version" | sed 's/-milestone-/-M/g; s/-rc-/RC/g')
 tag="v$full_version"
-full_version=$(find $dist_dir -name '*.zip' | head -n 1 | xargs basename | sed 's/gradle-\(.*\)-[^.]*.zip/\1/')
 
 # Rename the prefix of the distribution files
 for file in "$dist_dir"/gradle-*; do
-mv "$file" "$dist_dir/cradle-$(basename "$file" | sed 's/^gradle-//')"
+  mv "$file" "$dist_dir/cradle-$(basename "$file" | sed 's/^gradle-//')"
 done
 
 echo "🔄 Uploading nightly distributions for '$full_version'"
@@ -39,19 +45,27 @@ find $dist_dir -type f -name "*-docs.zip" -delete
 release_url=$github_url/releases/download/$tag
 note_file=$dist_dir/NOTES.md
 {
-  echo "## Nightly build for \`v$BASE_VERSION\`"
+  if [[ "$is_nightly" == "true" ]]; then
+    echo "## Nightly build for \`v$current_version\`"
+  else
+    echo "## Release \`v$current_version\`"
+  fi
   echo ""
   echo "#### Please refer to the [commit history]($github_url/commits/$tag) for a full list of changes."
-  echo ""
-  echo "> [!WARNING]"
-  echo "> This is an automatically generated nightly build of **Cradle**, which does not come with any guarantees of quality or stability. Please note that it may not be suitable for production use."
+
+  if [[ "$is_nightly" == "true" ]]; then
+    echo ""
+    echo "> [!WARNING]"
+    echo "> This is an automatically generated nightly build of **Cradle**, which does not come with any guarantees of quality or stability. Please note that it may not be suitable for production use."
+  fi
+
   echo ""
   echo "### Upgrade"
   echo ""
   echo "To quickly switch your build to **Cradle** \`$full_version\`, run the following command in your project's root directory:"
-  echo "\`\`\`bash"
-  echo "./gradlew wrapper --gradle-distribution-url=$release_url/cradle-$full_version-bin.zip"
-  echo "\`\`\`"
+  echo '```'
+  echo "./gradlew wrapper --gradle-distribution-url=$release_url/cradle-$raw_full_version-bin.zip"
+  echo '```'
   echo ""
   echo " If you are unable to use the command above, you can manually update the \`distributionUrl\` property in the \`gradle/wrapper/gradle-wrapper.properties\` file. Simply replace it with the download link for this version."
   echo ""
@@ -81,22 +95,25 @@ note_file=$dist_dir/NOTES.md
   echo "Alternatively, if you prefer, you can download the corresponding \`*.sha256\` file and manually copy the checksum from there."
 } > $note_file
 
-echo "::group::Release notes"
-cat $note_file
-echo "::endgroup::"
+echo "::group::Release notes"; cat $note_file; echo "::endgroup::"
 
-# Create a pre-release and upload all these
-branch="main"
-title="$full_version (Nightly)"
+# Create a release and upload all these
 files_to_upload=$(find $dist_dir -type f \( -name "*.zip" -o -name "*.sha256" \) | tr '\n' ' ')
+branch="main"
+title="$full_version"
+
+if [[ "$is_nightly" == "true" ]]; then
+  title+=" (Nightly)"
+fi
 
 echo "🚀 Creating release '$title' on branch '$branch' with files '$files_to_upload'"
 echo "========================================"
 
+gh repo set-default "$GITHUB_REPOSITORY"
 # shellcheck disable=SC2086
 gh release create $tag \
   --title "$title" \
   --notes-file "$note_file" \
   --target "$branch" \
-  --prerelease \
+  --prerelease=$is_nightly \
   $files_to_upload
