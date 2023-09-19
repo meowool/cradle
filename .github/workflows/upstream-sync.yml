@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
 env:
+  GH_TOKEN: ${{ secrets.BOT_TOKEN }}
   SCRIPTS: .github/workflows/scripts
 
 jobs:
@@ -34,7 +35,7 @@ jobs:
         run: ${{ env.SCRIPTS }}/configure-git.sh
 
       - name: Import GPG key
-        uses: crazy-max/ghaction-import-gpg@v4
+        uses: crazy-max/ghaction-import-gpg@v6
         with:
           gpg_private_key: ${{ secrets.BOT_GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.BOT_GPG_PASSPHRASE }}

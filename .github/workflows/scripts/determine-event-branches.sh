@@ -17,47 +17,31 @@ set -euo pipefail
 # limitations under the License.
 #
 
-continue=true
+# If the workflow is triggered automatically at a scheduled time or manually triggered
+# with the selected release type as "nightly", it means that we need to handle both the
+# 'main' and 'release' branches simultaneously.
+if [ "$RELEASE_TYPE" = "nightly" ] || [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
+  process_branches="main,release"
 
-case "$GITHUB_EVENT_NAME" in
-  create)
-    # Since the create event does not support branch or tag filters in Github workflows,
-    # we need to further filter it here:
-    #
-    # 1. If a tag is created, the tag name must follow the format `cradle-*`
-    if [[ $GITHUB_REF =~ refs/tags/cradle-.* ]]; then
-      # This means a new release of Cradle is ready.
-      # In this case, we need to process the latest version (`v*.*.*.x` branch).
-      process_branches=$(
-        git ls-remote --refs --heads origin "v[0-9]*.x*" \
-          | awk -F/ '{print $NF}' \
-          | sed '/-/! s/$/@/' | sort -V | sed 's/@$//' \
-          | tail -n 1
-      )
-    # 2. If a branch is created, the branch name must start with `v*.*.*.x` format
-    elif [[ $GITHUB_REF =~ refs/heads/v[0-9]+\.[0-9]+\.[0-9]+\.x ]]; then
-      # This means a new version has been released on the upstream Gradle.
-      # In this case, we need to process this newly branch.
-      process_branches=$GITHUB_REF_NAME
-    else
-      continue=false
-      echo "👋 Ignoring create event for $GITHUB_REF"
-    fi
-    ;;
-  schedule | workflow_dispatch)
-    # In general, we only need to process `main` and `release` branches when the workflow
-    # is manually or automatically triggered.
-    process_branches="main,release"
-    ;;
-  *)
-    # Unexpected event
-    continue=false
-    echo "⚠️ Unexpected event name: $GITHUB_EVENT_NAME"
-    exit 1
-    ;;
-esac
+# If the release type is "bump_latest", we need to process the latest version (`v*.*.*.x` branch).
+elif [ "$RELEASE_TYPE" = "bump_latest" ]; then
+  process_branches=$(
+    git ls-remote --refs --heads origin "v[0-9]*.x*" \
+      | awk -F/ '{print $NF}' \
+      | sed '/-/! s/$/@/' | sort -V | sed 's/@$//' \
+      | tail -n 1
+  )
+
+# If the release type is "specific", we only need to process the specified branches.
+elif [ "$RELEASE_TYPE" = "specific" ]; then
+  process_branches=${SPECIFIC_BRANCH:-$GITHUB_REF_NAME}
+
+# Otherwise, this is an unexpected release type.
+else
+  echo "⚠️ An error has occurred! release type: $RELEASE_TYPE, event name: $GITHUB_EVENT_NAME"
+  exit 1
+fi
 
 # Convert to {"include":[{"branch":"foo"},{"branch":"bar"}]}
 matrix=$(echo "$process_branches" | jq -c -R '[split(",")[] | select(length > 0) | {branch: .}] | {include: .}')
 echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
-echo "continue=$continue" >> "$GITHUB_OUTPUT"

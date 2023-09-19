@@ -34,3 +34,6 @@ cat << EOF > .git/info/attributes
 .editorconfig merge=ours
 README.md merge=ours
 EOF
+
+# At the same time, we set the correct remote repository for Github CLI
+gh repo set-default "$GITHUB_REPOSITORY"
