@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 #
 # Copyright 2023 the original author or authors.
@@ -16,8 +17,18 @@
 # limitations under the License.
 #
 
-git config --global user.name "Meowool Robot"
-git config --global user.email "meowool@proton.me"
-# We can automatically resolve some conflicts because there are
-# certain choices we can make without hesitation.
-git config --global merge.ours.driver true
+# Check if the branch name contains "-RC<number>"
+if [[ $current_branch == *"-RC"* ]]; then
+    version_property="rcNumber=${current_branch#*-RC}"
+# Check if the branch name contains "-M<number>"
+elif [[ $current_branch == *"-M"* ]]; then
+    version_property="milestoneNumber=${current_branch#*-M}"
+else
+    version_property="finalRelease=true"
+fi
+
+# Start the build
+./gradlew clean \
+  :distributions-full:buildDists :distributions-integ-tests:forkingIntegTest \
+  -Ddistribution-full-name=true -PmaxParallelForks=3 -P$version_property \
+  --exclude-task docs

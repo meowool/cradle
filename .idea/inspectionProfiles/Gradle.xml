@@ -32,6 +32,9 @@
       </extension>
     </inspection_tool>
     <inspection_tool class="SafeVarargsDetector" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="ShellCheck" enabled="true" level="ERROR" enabled_by_default="true">
+      <shellcheck_settings value="SC2154" />
+    </inspection_tool>
     <inspection_tool class="UNUSED_IMPORT" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="UnnecessaryParentheses" enabled="true" level="ERROR" enabled_by_default="true">
       <option name="ignoreClarifyingParentheses" value="true" />

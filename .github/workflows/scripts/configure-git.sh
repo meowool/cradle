@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 #
 # Copyright 2023 the original author or authors.
@@ -16,25 +17,20 @@
 # limitations under the License.
 #
 
-cradle_version=$1
+git config --local user.name "Meowool Robot"
+git config --local user.email "meowool@proton.me"
 
-if ! [[ $(< version.txt tr -d '[:space:]') =~ ^([0-9]+\.[0-9]+)(\.([0-9]+))?$ ]]; then
-  echo "::error::'version.txt' format is invalid."
-  exit 1
-fi
-
-major_minor=${BASH_REMATCH[1]}
-patch=${BASH_REMATCH[2]}
-
-echo "Current version: $major_minor$patch"
-
-# 1. If there is no patch version, we need to fill in 0
-# 2. Append the cradle version to the end
-#    7.5 -> 7.5.0.1
-#    7.5.1 -> 7.5.1.1
-new_version="$major_minor${patch:-".0"}.$cradle_version"
-
-echo "$new_version" > version.txt
-echo "BASE_VERSION=$new_version" >> "$GITHUB_ENV"
-
-echo "🆕 New version bumped: $new_version"
+# We can automatically resolve some conflicts because there are
+# certain choices we can make without hesitation.
+git config --local merge.ours.driver true
+# All these files should be based on the Cradle, and in case
+# of conflicts during merging, the Cradle files should be
+# chosen without hesitation.
+cat << EOF > .git/info/attributes
+.idea/** merge=ours
+.github/** merge=ours
+.gitattributes merge=ours
+.gitignore merge=ours
+.editorconfig merge=ours
+README.md merge=ours
+EOF

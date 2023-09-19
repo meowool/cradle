@@ -2,15 +2,13 @@ name: Test Sub-projects
 
 on:
   push:
-    branches:
-      - main
+    branches: ['*']
     paths:
       - 'platforms/**'
       - 'subprojects/**'
   pull_request:
-    branches:
-      - main
-    paths-ignore:
+    branches: ['*']
+    paths:
       - 'platforms/**'
       - 'subprojects/**'
 
