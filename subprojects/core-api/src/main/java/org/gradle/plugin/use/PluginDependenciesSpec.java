@@ -128,6 +128,42 @@ public interface PluginDependenciesSpec {
     PluginDependencySpec id(String id);
 
     /**
+     * Add a plugin dependency with the id of a notation coming from a version catalog.
+     * The resulting dependency spec can be refined with a version overriding
+     * what the version catalog provides.
+     *
+     * <p>
+     * See {@link #alias(Provider)} for more details.
+     * </p>
+     *
+     * @param notation the plugin reference
+     * @return a mutable plugin dependency specification  that can be used to further refine the dependency
+     *
+     * @author chachako
+     */
+    default PluginDependencySpec id(Provider<PluginDependency> notation) {
+        return id(notation.get().getPluginId());
+    }
+
+    /**
+     * Add a plugin dependency with the id of a notation coming from a version catalog.
+     * The resulting dependency spec can be refined with a version overriding
+     * what the version catalog provides.
+     *
+     * <p>
+     * See {@link #alias(ProviderConvertible)} for more details.
+     * </p>
+     *
+     * @param notation the plugin reference
+     * @return a mutable plugin dependency specification  that can be used to further refine the dependency
+     *
+     * @author chachako
+     */
+    default PluginDependencySpec id(ProviderConvertible<PluginDependency> notation) {
+        return id(notation.asProvider());
+    }
+
+    /**
      * Adds a plugin dependency using a notation coming from a version catalog.
      * The resulting dependency spec can be refined with a version overriding
      * what the version catalog provides.
