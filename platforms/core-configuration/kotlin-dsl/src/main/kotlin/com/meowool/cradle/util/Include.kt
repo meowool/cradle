@@ -100,7 +100,7 @@ interface ConfigurableInclude : PatternFilterable {
  * because they are the default reserved names, so if necessary, please explicitly
  * import them by [Settings.include] or [ConfigurableInclude.include] in [pattern].
  *
- * @param parent A parent directory including all projects, and it will not be included by itself.
+ * @param parent A parent directory including all projects.
  * @param pattern A pattern that can be used to configure directories to be included.
  *
  * @see Settings.include
@@ -108,7 +108,7 @@ interface ConfigurableInclude : PatternFilterable {
  * @author chachako
  */
 inline fun Settings.includeAllProjects(
-    parent: Path,
+    parent: File = rootDir,
     pattern: ConfigurableInclude.() -> Unit = {},
 ) = ConfigurableIncludeImpl(parent).apply(pattern).includeAll(this)
 
@@ -132,7 +132,7 @@ inline fun Settings.includeAllProjects(
  * because they are the default reserved names, so if necessary, please explicitly
  * import them by [Settings.include] or [ConfigurableInclude.include] in [pattern].
  *
- * @param parent A parent directory including all projects.
+ * @param parent A parent directory including all projects, and it will not be included by itself.
  * @param pattern A pattern that can be used to configure directories to be included.
  *
  * @see Settings.include
@@ -140,9 +140,9 @@ inline fun Settings.includeAllProjects(
  * @author chachako
  */
 inline fun Settings.includeAllProjects(
-    parent: File = rootDir,
+    parent: Path,
     pattern: ConfigurableInclude.() -> Unit = {},
-) = includeAllProjects(parent.toPath(), pattern)
+) = includeAllProjects(parent.toFile(), pattern)
 
 /**
  * Recursively include all projects that contain `build.gradle`, `build.gradle.kts`,
@@ -174,5 +174,5 @@ inline fun Settings.includeAllProjects(
 inline fun Settings.includeAllProjects(
     parent: String,
     pattern: ConfigurableInclude.() -> Unit = {},
-) = includeAllProjects(Path(parent), pattern)
+) = includeAllProjects(File(parent), pattern)
 
