@@ -19,16 +19,21 @@ set -euo pipefail
 
 # Check if the branch name contains "-RC<number>"
 if [[ $current_branch == *"-RC"* ]]; then
-    version_property="rcNumber=${current_branch#*-RC}"
+  version_property="-PrcNumber=${current_branch#*-RC}"
 # Check if the branch name contains "-M<number>"
 elif [[ $current_branch == *"-M"* ]]; then
-    version_property="milestoneNumber=${current_branch#*-M}"
+  version_property="-PmilestoneNumber=${current_branch#*-M}"
+# Check if the branch name is "main" or "release"
+elif [[ $current_branch == "main" || $current_branch == "release" ]]; then
+  # In this case, we don't need to specify any properties, which
+  # means we will build a nightly version.
+  version_property=""
 else
-    version_property="finalRelease=true"
+  version_property="-PfinalRelease=true"
 fi
 
 # Start the build
 ./gradlew clean \
   :distributions-full:buildDists :distributions-integ-tests:forkingIntegTest \
-  -Ddistribution-full-name=true -PmaxParallelForks=3 -P$version_property \
+  -Ddistribution-full-name=true -PmaxParallelForks=3 $version_property \
   --exclude-task docs
