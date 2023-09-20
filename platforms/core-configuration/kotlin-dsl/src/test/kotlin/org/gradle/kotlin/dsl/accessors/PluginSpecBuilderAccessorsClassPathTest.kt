@@ -156,7 +156,7 @@ class PluginSpecBuilderAccessorsClassPathTest : TestWithClassPath() {
 
             val expectedPluginSpec = mock<PluginDependencySpec>()
             val plugins = mock<PluginDependenciesSpec> {
-                on { id(any()) } doReturn expectedPluginSpec
+                on { id(any<String>()) } doReturn expectedPluginSpec
             }
 
             accessorsClass.run {
