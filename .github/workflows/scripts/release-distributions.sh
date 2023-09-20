@@ -36,7 +36,7 @@ for file in "$dist_dir"/gradle-*; do
   mv "$file" "$dist_dir/cradle-$(basename "$file" | sed 's/^gradle-//')"
 done
 
-echo "🔄 Uploading nightly distributions for '$full_version'"
+echo "🔄 Uploading distributions for '$full_version'"
 
 # We don't need docs distribution
 find $dist_dir -type f -name "*-docs.zip" -delete
