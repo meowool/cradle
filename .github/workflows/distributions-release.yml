@@ -54,6 +54,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
+          # Whatever happens, we always check out to the working branch, because
+          # we need to use the CI scripts in the main branch in this workflow.
+          ref: main
           # We need to specify a token here, because the default "GITHUB_TOKEN"
           # will not trigger a "push" event.
           token: ${{ secrets.BOT_TOKEN }}
