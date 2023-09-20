@@ -28,7 +28,7 @@ is_nightly=$( [[ "$current_branch" == "main" || "$current_branch" == "release" ]
 raw_full_version=$(find $dist_dir -name '*.zip' | head -n 1 | xargs basename | sed 's/gradle-\(.*\)-[^.]*.zip/\1/')
 # 7.5.1.1-milestone-1 > 7.5.1.1-M1
 # 8.5.0.1-rc-1 > 8.5.0.1-RC1
-full_version=$(echo "$raw_full_version" | sed 's/-milestone-/-M/g; s/-rc-/RC/g')
+full_version=$(echo "$raw_full_version" | sed 's/-milestone-/-M/g; s/-rc-/-RC/g')
 tag="v$full_version"
 
 # Rename the prefix of the distribution files
