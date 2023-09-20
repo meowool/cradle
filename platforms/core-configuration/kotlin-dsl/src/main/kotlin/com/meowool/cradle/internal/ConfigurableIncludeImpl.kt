@@ -17,65 +17,42 @@
 package com.meowool.cradle.internal
 
 import com.meowool.cradle.util.ConfigurableInclude
+import org.gradle.api.file.FileVisitDetails
+import org.gradle.api.file.FileVisitor
 import org.gradle.api.initialization.Settings
 import org.gradle.api.internal.SettingsInternal
+import org.gradle.api.internal.file.collections.DefaultDirectoryFileTreeFactory
 import org.gradle.api.tasks.util.PatternFilterable
 import org.gradle.api.tasks.util.PatternSet
 import java.io.File
-import java.nio.file.FileVisitResult
-import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.SimpleFileVisitor
-import java.nio.file.attribute.BasicFileAttributes
-import kotlin.io.path.Path
-import kotlin.io.path.absolute
 import kotlin.io.path.absolutePathString
-import kotlin.io.path.isRegularFile
-import kotlin.io.path.pathString
-import kotlin.io.path.relativeTo
 
 /**
  * @author chachako
  */
 @PublishedApi
-internal class ConfigurableIncludeImpl(private val outerDirectory: Path) :
-    PatternFilterable by PatternSet(),
-    ConfigurableInclude {
+internal class ConfigurableIncludeImpl(
+    private val outerDirectory: File,
+    private val patternSet: PatternSet = PatternSet(),
+) : PatternFilterable by patternSet, ConfigurableInclude {
 
     fun includeAll(settings: Settings) {
         // Exclude all the composite builds that have been included
         (settings as? SettingsInternal)?.includedBuilds?.map { it.rootDir }?.let(::exclude)
-
-        val includes = includes.map(::Path).toMutableSet()
-        val excludes = excludes.map(::Path)
-
-        // Walking the outermost directory to identify the final directories to be included
-        Files.walkFileTree(outerDirectory, object : SimpleFileVisitor<Path>() {
-            override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
-                // Skip the excluded and reserved directory
-                if (
-                    dir in excludes ||
-                    dir.fileName.toString() in reservedNames ||
-                    dir.resolve(".project.exclude").isRegularFile()
-                ) {
-                    return FileVisitResult.SKIP_SUBTREE
-                }
-
-                // If the directory is a Gradle project, include it
-                if (gradleScriptNames.any { dir.resolve(it).isRegularFile() }) {
-                    includes.add(dir)
-                }
-
-                return super.preVisitDirectory(dir, attrs)
-            }
-        })
-
+        exclude(*reservedNames)
+        exclude {
+            !it.isDirectory ||
+            it.file.resolve(".project.exclude").exists() ||
+            // If the directory is not a Gradle project, exclude it
+            gradleScriptNames.none { name -> it.file.resolve(name).exists() }
+        }
         // Now, we can add all the directories to be included to the build
-        settings.include(includes.map {
-            val relativePath = it.absolute().relativeTo(outerDirectory.absolute())
-            val projectPath = relativePath.pathString.replace(File.separatorChar, ':')
-
-            ":$projectPath"
+        DefaultDirectoryFileTreeFactory().create(outerDirectory, patternSet).visit(object : FileVisitor {
+            override fun visitFile(fileDetails: FileVisitDetails) = Unit
+            override fun visitDir(dirDetails: FileVisitDetails) {
+                settings.include(":${dirDetails.relativePath.pathString.replace(File.separatorChar, ':')}")
+            }
         })
     }
 
