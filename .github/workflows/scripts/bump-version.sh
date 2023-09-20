@@ -46,7 +46,15 @@ case $dot_count in
     ;;
 esac
 
+echo "🆕 New version bumped: $version"
+
 # Write the new version number to the file
 echo "$version" > version.txt
+
+# If the current branch is a pre-release branch, we need to add a suffix to version.
+if [[ $current_branch =~ (-RC|-M) ]]; then
+  version+="-${current_branch##*-}"
+fi
+
+# Finally, we set the new version to the environment variable.
 echo "current_version=$version" >> "$GITHUB_ENV"
-echo "🆕 New version bumped: $version"
