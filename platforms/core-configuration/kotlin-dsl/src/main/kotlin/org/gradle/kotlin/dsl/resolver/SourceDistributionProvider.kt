@@ -83,8 +83,8 @@ class SourceDistributionResolver(private val project: Project) : SourceDistribut
 
     private
     fun gradleSourceDependency() = dependencies.create(
-        group = "gradle",
-        name = "gradle",
+        group = "cradle",
+        name = "cradle",
         version = gradleVersion,
         configuration = null,
         classifier = "src",
