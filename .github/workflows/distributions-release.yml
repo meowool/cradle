@@ -128,8 +128,10 @@ jobs:
       - name: Create release
         run: ${{ env.SCRIPTS }}/release-distributions.sh
 
-      # If everything goes well, we push the version.txt file to the remote
+      # If everything goes well, we push the version.txt file to the remote.
       - name: Push local changes
+        # Only push changes if we are not on the 'main' or 'release' branch.
+        if: ${{ env.current_branch != 'main' && env.current_branch != 'release' }}
         run: |
           git add version.txt
           git commit -m "release: ${{ env.current_version }}"
