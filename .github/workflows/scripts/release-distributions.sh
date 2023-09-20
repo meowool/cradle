@@ -20,7 +20,7 @@ set -euo pipefail
 github_url=https://github.com/meowool/cradle
 dist_dir=subprojects/distributions-full/build/distributions
 
-is_nightly=$( [[ "$current_branch" == "release" || "$current_branch" == "main" ]] && echo true || echo false )
+is_nightly=$( [[ "$current_branch" == "main" || "$current_branch" == "release" ]] && echo true || echo false )
 
 # Parse build version
 # gradle-7.5.1.1-milestone-1-bin.zip > 7.5.1.1-milestone-1
