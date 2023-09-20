@@ -17,10 +17,14 @@ set -euo pipefail
 # limitations under the License.
 #
 
+# If the release type is "specific", we need to process the specified branches.
+if [[ -n $SPECIFIC_BRANCH && $SPECIFIC_BRANCH != "" ]] || [[ $RELEASE_TYPE == "specific" ]]; then
+  process_branches=${SPECIFIC_BRANCH:-$GITHUB_REF_NAME}
+
 # If the workflow is triggered automatically at a scheduled time or manually triggered
 # with the selected release type as "nightly", it means that we need to handle both the
 # 'main' and 'release' branches simultaneously.
-if [ "$RELEASE_TYPE" = "nightly" ] || [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
+elif [ "$RELEASE_TYPE" = "nightly" ] || [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
   process_branches="main,release"
 
 # If the release type is "bump_latest", we need to process the latest version (`v*.*.*.x` branch).
@@ -31,10 +35,6 @@ elif [ "$RELEASE_TYPE" = "bump_latest" ]; then
       | sed '/-/! s/$/@/' | sort -V | sed 's/@$//' \
       | tail -n 1
   )
-
-# If the release type is "specific", we only need to process the specified branches.
-elif [ "$RELEASE_TYPE" = "specific" ]; then
-  process_branches=${SPECIFIC_BRANCH:-$GITHUB_REF_NAME}
 
 # Otherwise, this is an unexpected release type.
 else
