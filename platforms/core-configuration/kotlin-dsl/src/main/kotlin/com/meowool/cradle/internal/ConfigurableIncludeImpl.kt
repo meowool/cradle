@@ -26,7 +26,8 @@ import org.gradle.api.tasks.util.PatternFilterable
 import org.gradle.api.tasks.util.PatternSet
 import java.io.File
 import java.nio.file.Path
-import kotlin.io.path.absolutePathString
+import kotlin.io.path.pathString
+import kotlin.io.path.relativeTo
 
 /**
  * @author chachako
@@ -39,8 +40,10 @@ internal class ConfigurableIncludeImpl(
 
     fun includeAll(settings: Settings) {
         // Exclude all the composite builds that have been included
-        (settings as? SettingsInternal)?.includedBuilds?.map { it.rootDir }?.let(::exclude)
-        // Skipping folders to exclude and to reserve
+        (settings as? SettingsInternal)?.includedBuilds
+            ?.map { it.rootDir.relativeTo(outerDirectory).path }
+            ?.let(::exclude)
+        // Skipping directories to exclude and to reserve
         exclude(*reservedNames)
         exclude { !it.isDirectory || it.file.resolve(".project.exclude").exists() }
         // Now, we can walk the outermost directory to identify the final directories to be included
@@ -56,11 +59,11 @@ internal class ConfigurableIncludeImpl(
     }
 
     override fun include(vararg directories: File): ConfigurableInclude = apply {
-        include(directories.map { it.absolutePath })
+        include(directories.map { it.relativeTo(outerDirectory).path })
     }
 
     override fun include(vararg directories: Path): ConfigurableInclude = apply {
-        include(directories.map { it.absolutePathString() })
+        include(directories.map { it.relativeTo(outerDirectory.toPath()).pathString })
     }
 
     override fun include(directories: Iterable<Any>): ConfigurableInclude = apply {
@@ -75,11 +78,11 @@ internal class ConfigurableIncludeImpl(
     }
 
     override fun exclude(vararg directories: File): ConfigurableInclude = apply {
-        exclude(directories.map { it.absolutePath })
+        exclude(directories.map { it.relativeTo(outerDirectory).path })
     }
 
     override fun exclude(vararg directories: Path): ConfigurableInclude = apply {
-        exclude(directories.map { it.absolutePathString() })
+        exclude(directories.map { it.relativeTo(outerDirectory.toPath()).pathString })
     }
 
     override fun exclude(directories: Iterable<Any>): ConfigurableInclude = apply {
