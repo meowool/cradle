@@ -40,18 +40,17 @@ internal class ConfigurableIncludeImpl(
     fun includeAll(settings: Settings) {
         // Exclude all the composite builds that have been included
         (settings as? SettingsInternal)?.includedBuilds?.map { it.rootDir }?.let(::exclude)
+        // Skipping folders to exclude and to reserve
         exclude(*reservedNames)
-        exclude {
-            !it.isDirectory ||
-            it.file.resolve(".project.exclude").exists() ||
-            // If the directory is not a Gradle project, exclude it
-            gradleScriptNames.none { name -> it.file.resolve(name).exists() }
-        }
-        // Now, we can add all the directories to be included to the build
+        exclude { !it.isDirectory || it.file.resolve(".project.exclude").exists() }
+        // Now, we can walk the outermost directory to identify the final directories to be included
         DefaultDirectoryFileTreeFactory().create(outerDirectory, patternSet).visit(object : FileVisitor {
             override fun visitFile(fileDetails: FileVisitDetails) = Unit
             override fun visitDir(dirDetails: FileVisitDetails) {
-                settings.include(":${dirDetails.relativePath.pathString.replace(File.separatorChar, ':')}")
+                // Only include it when this directory is a Gradle project
+                if (gradleScriptNames.any { name -> dirDetails.file.resolve(name).exists() }) {
+                    settings.include(":${dirDetails.relativePath.pathString.replace(File.separatorChar, ':')}")
+                }
             }
         })
     }
