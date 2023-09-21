@@ -121,9 +121,11 @@ public class DefaultDependencyFactory implements DependencyFactoryInternal {
     @Override
     @Deprecated
     @SuppressWarnings("rawtypes")
-    public org.gradle.api.artifacts.ClientModule createModule(Object dependencyNotation, Closure configureClosure) {
+    public org.gradle.api.artifacts.ClientModule createModule(Object dependencyNotation, @Nullable Closure configureClosure) {
         org.gradle.api.artifacts.ClientModule clientModule = clientModuleNotationParser.parseNotation(dependencyNotation);
-        configureModule(clientModule, configureClosure);
+        if (configureClosure != null) {
+            configureModule(clientModule, configureClosure);
+        }
         return clientModule;
     }
 
