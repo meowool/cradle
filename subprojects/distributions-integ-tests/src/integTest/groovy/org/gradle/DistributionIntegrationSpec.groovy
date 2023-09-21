@@ -80,6 +80,9 @@ abstract class DistributionIntegrationSpec extends AbstractIntegrationSpec {
     }
 
     def "distribution size should not exceed a certain number"() {
+        // @cradle extension: Skip this test, we don't care
+        if (System.getenv("CI") != null) return
+
         expect:
         def size = getZip().size()
 

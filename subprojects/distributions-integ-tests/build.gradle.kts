@@ -1,3 +1,5 @@
+import gradlebuild.basics.BuildEnvironment.isCiServer
+import gradlebuild.basics.BuildParams.CI_ENVIRONMENT_VARIABLE
 import gradlebuild.basics.buildBranch
 import gradlebuild.basics.buildCommitId
 
@@ -25,6 +27,7 @@ dependencies {
 }
 
 tasks.forkingIntegTest {
+    environment(CI_ENVIRONMENT_VARIABLE, isCiServer)
     systemProperty("gradleBuildBranch", buildBranch.get())
     systemProperty("gradleBuildCommitId", buildCommitId.get())
 }
