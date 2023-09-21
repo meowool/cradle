@@ -22,6 +22,7 @@ on:
         required: false
 
 env:
+  CI: true
   RELEASE_TYPE: ${{ github.event.inputs.type }}
   SPECIFIC_BRANCH: ${{ github.event.inputs.specific }}
   GH_TOKEN: ${{ secrets.BOT_TOKEN }}
