@@ -16,6 +16,10 @@ on:
       specific:
         description: 'Specific branch to release'
         required: false
+      wait-for-tests:
+        description: 'Wait for tests to pass before releasing'
+        default: 'true'
+        required: false
 
 env:
   RELEASE_TYPE: ${{ github.event.inputs.type }}
@@ -105,6 +109,7 @@ jobs:
 
       # Make sure that all these changes pass the tests.
       - name: Wait for tests to pass
+        if: ${{ github.event.inputs.wait-for-tests == 'true' }}
         run: ${{ env.SCRIPTS }}/wait-for-tests.sh
 
       # We also need to bump the Gradle base version in the `version.txt` file
