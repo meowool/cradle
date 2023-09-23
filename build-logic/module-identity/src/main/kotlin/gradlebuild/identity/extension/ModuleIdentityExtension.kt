@@ -46,7 +46,7 @@ abstract class ModuleIdentityExtension(val tasks: TaskContainer, val objects: Ob
             this.promotionBuild = this@ModuleIdentityExtension.promotionBuild
             this.buildTimestampFrom(this@ModuleIdentityExtension.buildTimestamp)
             this.commitId = project.buildCommitId
-            this.receiptFolder = project.layout.buildDirectory.dir("generated-resources/build-receipt")
+            this.receiptFolder = project.rootProject.layout.buildDirectory.dir("generated-resources/build-receipt")
         }
         tasks.named<Jar>("jar").configure {
             from(createBuildReceipt.map { it.receiptFolder })
