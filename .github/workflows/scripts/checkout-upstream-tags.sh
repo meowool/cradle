@@ -35,7 +35,7 @@ for tag in $upstream_tags; do
   corresponding_branch=$(echo "$tag" | sed -E 's/(v)([0-9]+\.[0-9]+\.[0-9]+)(.*)/\1\2.x\3/')
 
   # Check if the branch is already checked out
-  if [[ ! $local_branches =~ $corresponding_branch ]]; then
+  if [[ ! $local_branches =~ (^|[[:space:]])"$corresponding_branch"($|[[:space:]]) ]]; then
     needs_checkout=true
 
     echo "🔍 Checking out $tag..."
