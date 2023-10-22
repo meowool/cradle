@@ -25,6 +25,7 @@ import org.gradle.api.artifacts.Dependency
 import org.gradle.api.reflect.TypeOf
 import org.gradle.internal.deprecation.ConfigurationDeprecationType
 import org.gradle.internal.hash.Hashing.hashString
+import org.gradle.kotlin.dsl.internal.sharedruntime.codegen.primitiveTypeStrings
 import org.gradle.kotlin.dsl.support.bytecode.ALOAD
 import org.gradle.kotlin.dsl.support.bytecode.ARETURN
 import org.gradle.kotlin.dsl.support.bytecode.CHECKCAST
@@ -43,17 +44,17 @@ import org.gradle.kotlin.dsl.support.bytecode.listTypeOf
 import org.gradle.kotlin.dsl.support.bytecode.newClassTypeOf
 import org.gradle.kotlin.dsl.support.bytecode.newFunctionOf
 import org.gradle.kotlin.dsl.support.bytecode.newOptionalValueParameterOf
-import org.gradle.kotlin.dsl.support.bytecode.providerConvertibleOfStar
-import org.gradle.kotlin.dsl.support.bytecode.publicFunctionFlags
-import org.gradle.kotlin.dsl.support.bytecode.publicFunctionWithAnnotationsFlags
-import org.gradle.kotlin.dsl.support.bytecode.publicStaticMethod
-import org.gradle.kotlin.dsl.support.bytecode.publicStaticSyntheticMethod
 import org.gradle.kotlin.dsl.support.bytecode.newPropertyOf
 import org.gradle.kotlin.dsl.support.bytecode.newTypeParameterOf
 import org.gradle.kotlin.dsl.support.bytecode.newValueParameterOf
 import org.gradle.kotlin.dsl.support.bytecode.newVarargValueParameterOf
 import org.gradle.kotlin.dsl.support.bytecode.nullable
+import org.gradle.kotlin.dsl.support.bytecode.providerConvertibleOfStar
 import org.gradle.kotlin.dsl.support.bytecode.providerOfStar
+import org.gradle.kotlin.dsl.support.bytecode.publicFunctionFlags
+import org.gradle.kotlin.dsl.support.bytecode.publicFunctionWithAnnotationsFlags
+import org.gradle.kotlin.dsl.support.bytecode.publicStaticMethod
+import org.gradle.kotlin.dsl.support.bytecode.publicStaticSyntheticMethod
 import org.gradle.kotlin.dsl.support.bytecode.publicStaticVarargMethod
 import org.gradle.kotlin.dsl.support.uppercaseFirstChar
 import org.jetbrains.org.objectweb.asm.MethodVisitor
@@ -119,79 +120,6 @@ fun fragmentsForConfiguration(accessor: Accessor.ForConfiguration): Fragments = 
             signature = JvmMethodSignature(
                 name.original,
                 "(Lorg/gradle/api/artifacts/dsl/DependencyHandler;Ljava/lang/Object;)Lorg/gradle/api/artifacts/Dependency;"
-            )
-        ),
-        // @cradle extension
-        AccessorFragment(
-            source = name.run {
-                """
-                    /**
-                     * Adds all dependencies to the '$original' configuration.
-                     *
-                     * ## Introduction
-                     *
-                     * This shorthand function allows you to add multiple dependencies to the same
-                     * configuration at once, without the need to repeatedly call the same configuration
-                     * multiple times.
-                     *
-                     * Do this:
-                     *
-                     * ```
-                     * ${original}Of(
-                     *   "com.example:library:1.0.0",
-                     *   "foo.bar:common:0.1.0",
-                     *   "a.b:c:0.1.0" config {
-                     *     isTransitive = true
-                     *   },
-                     * )
-                     * ```
-                     *
-                     * Instead of:
-                     *
-                     * ```
-                     * $original("com.example:library:1.0.0")
-                     * $original("foo.bar:common:0.1.0")
-                     * $original("a.b:c:0.1.0") {
-                     *   isTransitive = true
-                     * }
-                     * ```
-                     *
-                     * @param dependencyNotations notation list for all dependencies to be added.
-                     *
-                     * @see DependencyHandlerScope.config
-                     * @see DependencyHandler.add
-                     *
-                     * @author chachako
-                     */$deprecationBlock
-                    fun DependencyHandler.`${kotlinIdentifier}Of`(vararg dependencyNotations: Any): List<Dependency?> =
-                        addAllDependencyNotationsTo(this, "$stringLiteral", dependencyNotations)
-                """
-            },
-            bytecode = {
-                publicStaticMaybeDeprecatedVarargMethod(signature, config) {
-                    ALOAD(0)
-                    LDC(name.original)
-                    ALOAD(1)
-                    invokeRuntime(
-                        "addAllDependencyNotationsTo",
-                        "(L${GradleTypeName.dependencyHandler};Ljava/lang/String;[Ljava/lang/Object;)Ljava/util/List;"
-                    )
-                    ARETURN()
-                }
-            },
-            metadata = {
-                kmPackage.functions += newFunctionOf(
-                    flags = functionFlags,
-                    receiverType = GradleType.dependencyHandler,
-                    returnType = listTypeOf(nullable(GradleType.dependency)),
-                    name = "${propertyName}Of",
-                    valueParameters = listOf(newVarargValueParameterOf("dependencyNotations", KotlinType.any)),
-                    signature = signature
-                )
-            },
-            signature = JvmMethodSignature(
-                "${propertyName}Of",
-                "(Lorg/gradle/api/artifacts/dsl/DependencyHandler;[Ljava/lang/Object;)Ljava/util/List;"
             )
         ),
         AccessorFragment(

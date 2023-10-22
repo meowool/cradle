@@ -71,7 +71,7 @@ teams:
       - 'wolfs'
   configuration:
     members:
-      - 'alllex'
+      - 'alllex-DISABLED'
   dev_prod:
     members:
       - 'blindpirate'
@@ -79,7 +79,6 @@ teams:
     members:
       - 'asodja-DISABLED'
       - 'lptr-DISABLED'
-      - 'FrauBoes-DISABLED'
   ide:
     members:
       - 'hegyibalint'
@@ -189,17 +188,3 @@ platforms:
     name: 'software'
     subprojects:
       - 'platforms/software/'
-      - 'subprojects/dependency-management/'
-      - 'subprojects/ivy/'
-      - 'subprojects/maven/'
-      - 'subprojects/platform-base/'
-      - 'subprojects/publish/'
-      - 'subprojects/reporting/'
-      - 'subprojects/resources/'
-      - 'subprojects/resources-gcs/'
-      - 'subprojects/resources-http/'
-      - 'subprojects/resources-s3/'
-      - 'subprojects/resources-sftp/'
-      - 'subprojects/security/'
-      - 'subprojects/signing/'
-      - 'subprojects/version-control/'
