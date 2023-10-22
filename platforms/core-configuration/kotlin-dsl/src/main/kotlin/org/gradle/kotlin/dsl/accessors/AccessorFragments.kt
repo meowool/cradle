@@ -19,9 +19,7 @@ package org.gradle.kotlin.dsl.accessors
 import kotlinx.metadata.Flag
 import kotlinx.metadata.KmType
 import kotlinx.metadata.KmVariance
-import kotlinx.metadata.flagsOf
 import kotlinx.metadata.jvm.JvmMethodSignature
-import org.gradle.api.artifacts.Dependency
 import org.gradle.api.reflect.TypeOf
 import org.gradle.internal.deprecation.ConfigurationDeprecationType
 import org.gradle.internal.hash.Hashing.hashString
