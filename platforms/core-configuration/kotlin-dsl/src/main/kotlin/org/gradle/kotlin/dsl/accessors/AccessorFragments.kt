@@ -16,7 +16,6 @@
 
 package org.gradle.kotlin.dsl.accessors
 
-import kotlinx.metadata.Flag
 import kotlinx.metadata.KmType
 import kotlinx.metadata.KmVariance
 import kotlinx.metadata.jvm.JvmMethodSignature
@@ -53,6 +52,7 @@ import org.gradle.kotlin.dsl.support.bytecode.publicFunctionFlags
 import org.gradle.kotlin.dsl.support.bytecode.publicFunctionWithAnnotationsFlags
 import org.gradle.kotlin.dsl.support.bytecode.publicStaticMethod
 import org.gradle.kotlin.dsl.support.bytecode.publicStaticSyntheticMethod
+import org.gradle.kotlin.dsl.support.bytecode.publicStaticVarargMethod
 import org.gradle.kotlin.dsl.support.uppercaseFirstChar
 import org.jetbrains.org.objectweb.asm.MethodVisitor
 
