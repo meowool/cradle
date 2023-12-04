@@ -33,11 +33,10 @@ import org.codehaus.groovy.syntax.SyntaxException;
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.internal.initialization.ClassLoaderScope;
-import org.gradle.api.problems.ProblemBuilderSpec;
-import org.gradle.api.problems.Problems;
 import org.gradle.api.problems.ProblemBuilder;
 import org.gradle.api.problems.ProblemBuilderDefiningLabel;
-import org.gradle.api.problems.ProblemGroup;
+import org.gradle.api.problems.ProblemBuilderSpec;
+import org.gradle.api.problems.Problems;
 import org.gradle.api.problems.Severity;
 import org.gradle.configuration.ImportsReader;
 import org.gradle.groovy.scripts.ScriptCompilationException;
@@ -223,9 +222,8 @@ public class DefaultScriptCompilationHandler implements ScriptCompilationHandler
                 return builder
                     .label(message)
                     .undocumented()
-                    .location(source.getFileName(), lineNumber)
-                    .type("script_compilation_failed")
-                    .group(ProblemGroup.GENERIC_ID)
+                    .fileLocation(source.getFileName(), lineNumber, null, null)
+                    .category("compiler", "groovy-dsl", "compilation-failed")
                     .severity(Severity.ERROR)
                     .withException(new ScriptCompilationException(message, e, source, lineNumber));
             }

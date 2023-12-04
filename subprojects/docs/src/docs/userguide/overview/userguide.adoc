@@ -1,10 +1,10 @@
-// Copyright 2023 the original author or authors.
+// Copyright (C) 2023 Gradle, Inc.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
+// Licensed under the Creative Commons Attribution-Noncommercial-ShareAlike 4.0 International License.;
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//      https://creativecommons.org/licenses/by-nc-sa/4.0/
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -51,7 +51,7 @@ You can also invoke Gradle via its <<command_line_interface.adoc#command_line_in
 == Education
 The **<<about_manual.adoc#about_manual,Gradle User Manual>>** is the official documentation for the Gradle Build Tool.
 
-* **Getting Started Tutorial** — <<introduction#introduction,Learn Gradle basics>> and the benefits of building your App with Gradle.
+* **Getting Started Tutorial** — <<getting_started_eng.adoc#introduction,Learn Gradle basics>> and the benefits of building your App with Gradle.
 * **Training Courses** — Head over to the link:https://gradle.org/courses/[courses page] to sign up for free Gradle training.
 
 == Support

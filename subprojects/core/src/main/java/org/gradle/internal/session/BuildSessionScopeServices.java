@@ -141,7 +141,7 @@ public class BuildSessionScopeServices extends WorkerSharedBuildSessionScopeServ
         return new BuildOperationCrossProjectConfigurator(buildOperationExecutor);
     }
 
-    BuildLayout createBuildLayout(BuildLayoutFactory buildLayoutFactory, StartParameter startParameter) {
+    BuildLayout createBuildLocations(BuildLayoutFactory buildLayoutFactory, StartParameter startParameter) {
         return buildLayoutFactory.getLayoutFor(new BuildLayoutConfiguration(startParameter));
     }
 

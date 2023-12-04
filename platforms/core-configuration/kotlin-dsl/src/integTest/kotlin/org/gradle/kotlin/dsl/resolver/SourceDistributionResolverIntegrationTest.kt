@@ -34,7 +34,7 @@ class SourceDistributionResolverIntegrationTest : AbstractKotlinIntegrationTest(
     // @Test
     fun `can download source distribution when repositories are declared in settings`() {
 
-        withSettings(
+        withDefaultSettings().appendText(
             """
             dependencyResolutionManagement {
                 repositories {

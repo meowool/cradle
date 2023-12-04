@@ -22,7 +22,6 @@ import org.gradle.api.internal.project.ProjectState;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.problems.Problems;
-import org.gradle.api.problems.ProblemGroup;
 import org.gradle.api.problems.Severity;
 import org.gradle.api.specs.Spec;
 import org.gradle.util.internal.NameMatcher;
@@ -102,9 +101,8 @@ public class DefaultTaskSelector implements TaskSelector {
         throw getProblemService().throwing(builder -> builder
             .label(message)
             .undocumented()
-            .location(Objects.requireNonNull(context.getOriginalPath().getName()), -1)
-            .type("task_selection")
-            .group(ProblemGroup.GENERIC_ID)
+            .fileLocation(Objects.requireNonNull(context.getOriginalPath().getName()), -1, null, null)
+            .category("task-selection", "no-matches")
             .severity(Severity.ERROR)
             .withException(new TaskSelectionException(message)) // this instead of cause
         );
